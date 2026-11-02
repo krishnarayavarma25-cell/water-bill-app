@@ -8,128 +8,9 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
+  </style>
 
-body{
-background:#f5f7fa;
-padding:20px;
-}
-
-.container{
-max-width:800px;
-margin:auto;
-background:#fff;
-padding:20px;
-border-radius:12px;
-box-shadow:0 2px 10px rgba(0,0,0,.1);
-}
-
-h2,h3{
-text-align:center;
-margin-bottom:15px;
-color:#0077b6;
-}
-
-input{
-width:100%;
-padding:12px;
-margin:8px 0;
-border:1px solid #ccc;
-border-radius:8px;
-}
-
-button{
-width:100%;
-padding:12px;
-margin-top:10px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-size:16px;
-}
-
-.calculate-btn{
-background:#0077b6;
-color:white;
-}
-
-.new-btn{
-background:#ff9800;
-color:white;
-}
-
-.share-btn{
-background:#28a745;
-color:white;
-display:none;
-}
-
-.whatsapp-btn{
-background:#25D366;
-color:white;
-display:none;
-}
-
-.clear-btn{
-background:#dc3545;
-color:white;
-}
-
-#billCard{
-display:none;
-margin-top:20px;
-padding:20px;
-border:2px solid #0077b6;
-border-radius:12px;
-background:white;
-}
-
-.bill-title{
-text-align:center;
-font-size:24px;
-font-weight:bold;
-color:#0077b6;
-margin-bottom:10px;
-}
-
-.row{
-display:flex;
-justify-content:space-between;
-padding:8px 0;
-border-bottom:1px solid #eee;
-}
-
-.total{
-font-size:24px;
-font-weight:bold;
-color:red;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:15px;
-}
-
-th{
-background:#0077b6;
-color:white;
-padding:10px;
-}
-
-td{
-border:1px solid #ddd;
-padding:8px;
-text-align:center;
-}
-</style>
 </head>
-
 <body>
 
 <div class="container">
@@ -156,67 +37,84 @@ Calculate Bill
 🔄 New Bill
 </button>
 
+<button
+style="background:#6c757d;color:white;"
+onclick="toggleHistory()">
+📋 Bill History
+</button>
+
 <div id="billCard">
 
-<div class="bill-title">
-WATER CONSUMPTION BILL
+<div class="apartment-title">
+💧 WATER CONSUMPTION BILL
 </div>
 
+<div class="bill-subtitle">
+Generated Water Usage Statement
+</div>
+
+<hr>
+
 <div class="row">
-<span>Apartment</span>
+<span><b>Apartment</b></span>
 <span id="outApartment"></span>
 </div>
 
 <div class="row">
-<span>Flat No</span>
+<span><b>Flat No</b></span>
 <span id="outFlat"></span>
 </div>
 
 <div class="row">
-<span>Tenant</span>
+<span><b>Tenant</b></span>
 <span id="outCustomer"></span>
 </div>
 
 <div class="row">
-<span>Date</span>
+<span><b>Date</b></span>
 <span id="outDate"></span>
 </div>
 
+<hr>
+
 <div class="row">
-<span>Current Reading</span>
+<span><b>Current Reading</b></span>
 <span id="outCurrent"></span>
 </div>
 
 <div class="row">
-<span>Previous Reading</span>
+<span><b>Previous Reading</b></span>
 <span id="outPrevious"></span>
 </div>
 
 <div class="row">
-<span>Water Consumed</span>
+<span><b>Water Consumed</b></span>
 <span id="outLiters"></span>
 </div>
 
+<hr>
+
 <div class="row total">
-<span>Total Bill</span>
+<span>TOTAL BILL</span>
 <span id="outBill"></span>
 </div>
 
+<div class="thankyou">
+Thank You
 </div>
 
-<button id="shareBtn"
+</div>
+
+<button
+id="shareBtn"
 class="share-btn"
 onclick="shareBill()">
 📤 Share Bill Image
 </button>
 
-<button id="whatsappBtn"
-class="whatsapp-btn"
-onclick="shareWhatsApp()">
-📱 Share via WhatsApp
-</button>
+<div id="historySection" style="display:none;">
 
-<hr style="margin:25px 0;">
+<hr>
 
 <h3>📋 Bill History</h3>
 
@@ -244,73 +142,299 @@ onclick="clearHistory()">
 
 </div>
 
+</div>
+
 <script>
-  function calculateBill(){
+  </script>
+
+</body>
+</html>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f7fa;
+padding:20px;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+background:#ffffff;
+padding:20px;
+border-radius:15px;
+box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
+
+h2,h3{
+text-align:center;
+margin-bottom:15px;
+color:#0077b6;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:8px 0;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:15px;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+font-weight:bold;
+}
+
+.calculate-btn{
+background:#0077b6;
+color:white;
+}
+
+.new-btn{
+background:#ff9800;
+color:white;
+}
+
+.share-btn{
+background:#28a745;
+color:white;
+display:none;
+}
+
+.clear-btn{
+background:#dc3545;
+color:white;
+}
+
+#billCard{
+display:none;
+margin-top:20px;
+padding:25px;
+border-radius:15px;
+background:#ffffff;
+border:3px solid #0077b6;
+box-shadow:0 4px 15px rgba(0,0,0,.15);
+}
+
+.apartment-title{
+text-align:center;
+font-size:28px;
+font-weight:bold;
+color:#0077b6;
+margin-bottom:10px;
+}
+
+.bill-subtitle{
+text-align:center;
+font-size:14px;
+color:#666;
+margin-bottom:20px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #eee;
+}
+
+.row span{
+font-size:15px;
+}
+
+.total{
+font-size:28px;
+font-weight:bold;
+color:#d32f2f;
+padding-top:15px;
+}
+
+.thankyou{
+text-align:center;
+margin-top:20px;
+font-size:13px;
+color:#666;
+font-style:italic;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+th{
+background:#0077b6;
+color:white;
+padding:10px;
+}
+
+td{
+border:1px solid #ddd;
+padding:8px;
+text-align:center;
+}
+
+#historySection{
+display:none;
+margin-top:20px;
+}
+
+@media(max-width:600px){
+
+.row{
+font-size:14px;
+}
+
+.total{
+font-size:22px;
+}
+
+.apartment-title{
+font-size:22px;
+}
+
+}
+function toggleHistory(){
+
+const historySection =
+document.getElementById("historySection");
+
+historySection.style.display =
+historySection.style.display === "none"
+? "block"
+: "none";
+
+}
+
+function calculateBill(){
 
 let apartment =
-document.getElementById("apartment").value;
+document.getElementById("apartment").value.trim();
 
 let flat =
-document.getElementById("flat").value;
+document.getElementById("flat").value.trim();
 
-let customer =
-document.getElementById("customerName").value;
-
-let billDate =
-new Date().toLocaleDateString("en-IN");
+let tenant =
+document.getElementById("customerName").value.trim();
 
 let current =
-parseFloat(document.getElementById("currentReading").value);
+parseFloat(
+document.getElementById("currentReading").value
+);
 
 let previous =
-parseFloat(document.getElementById("previousReading").value);
+parseFloat(
+document.getElementById("previousReading").value
+);
 
 let paisaRate =
-parseFloat(document.getElementById("paisaRate").value);
+parseFloat(
+document.getElementById("paisaRate").value
+);
 
-if(isNaN(current) || isNaN(previous)){
+if(
+apartment === "" ||
+flat === "" ||
+tenant === ""
+){
+alert("Please fill all details");
+return;
+}
+
+if(
+isNaN(current) ||
+isNaN(previous)
+){
 alert("Please enter readings");
 return;
 }
 
 if(current < previous){
-alert("Current reading cannot be less than previous reading");
+alert(
+"Current reading cannot be less than previous reading"
+);
 return;
 }
 
-let units = current - previous;
-let liters = units * 10;
-let amount = (liters * paisaRate) / 100;
+let billDate =
+new Date().toLocaleDateString("en-IN");
 
-document.getElementById("outApartment").innerText = apartment;
-document.getElementById("outFlat").innerText = flat;
-document.getElementById("outCustomer").innerText = customer;
-document.getElementById("outDate").innerText = billDate;
-document.getElementById("outCurrent").innerText = current;
-document.getElementById("outPrevious").innerText = previous;
-document.getElementById("outLiters").innerText = liters + " Liters";
-document.getElementById("outBill").innerText = "₹" + amount.toFixed(2);
+let liters =
+(current - previous) * 10;
 
-document.getElementById("billCard").style.display = "block";
-document.getElementById("shareBtn").style.display = "block";
-document.getElementById("whatsappBtn").style.display = "block";
+let amount =
+(liters * paisaRate) / 100;
 
-saveBillHistory(flat,customer,liters,amount);
+document.getElementById("outApartment").innerText =
+apartment;
+
+document.getElementById("outFlat").innerText =
+flat;
+
+document.getElementById("outCustomer").innerText =
+tenant;
+
+document.getElementById("outDate").innerText =
+billDate;
+
+document.getElementById("outCurrent").innerText =
+current;
+
+document.getElementById("outPrevious").innerText =
+previous;
+
+document.getElementById("outLiters").innerText =
+liters + " Liters";
+
+document.getElementById("outBill").innerText =
+"₹" + amount.toFixed(2);
+
+document.getElementById("billCard").style.display =
+"block";
+
+document.getElementById("shareBtn").style.display =
+"block";
+
+saveBillHistory(
+flat,
+tenant,
+liters,
+amount
+);
 
 }
 
 function refreshForm(){
 
-document.getElementById("apartment").value="";
-document.getElementById("flat").value="";
-document.getElementById("customerName").value="";
-document.getElementById("currentReading").value="";
-document.getElementById("previousReading").value="";
-document.getElementById("paisaRate").value="11";
+document.getElementById("apartment").value = "";
 
-document.getElementById("billCard").style.display="none";
-document.getElementById("shareBtn").style.display="none";
-document.getElementById("whatsappBtn").style.display="none";
+document.getElementById("flat").value = "";
+
+document.getElementById("customerName").value = "";
+
+document.getElementById("currentReading").value = "";
+
+document.getElementById("previousReading").value = "";
+
+document.getElementById("paisaRate").value = "11";
+
+document.getElementById("billCard").style.display =
+"none";
+
+document.getElementById("shareBtn").style.display =
+"none";
 
 }
 
@@ -321,21 +445,56 @@ try{
 const billCard =
 document.getElementById("billCard");
 
+if(!billCard){
+
+alert("Bill not found");
+
+return;
+
+}
+
 const canvas =
-await html2canvas(billCard,{scale:2});
+await html2canvas(
+billCard,
+{
+scale:3,
+backgroundColor:"#ffffff",
+useCORS:true
+}
+);
 
 const blob =
 await new Promise(resolve =>
-canvas.toBlob(resolve,"image/png")
+canvas.toBlob(
+resolve,
+"image/png",
+1.0
+)
 );
 
+if(!blob){
+
+alert("Unable to create image");
+
+return;
+
+}
+
 const file =
-new File([blob],"WaterBill.png",{type:"image/png"});
+new File(
+[blob],
+"WaterBill.png",
+{
+type:"image/png"
+}
+);
 
 if(
 navigator.share &&
 navigator.canShare &&
-navigator.canShare({files:[file]})
+navigator.canShare({
+files:[file]
+})
 ){
 
 await navigator.share({
@@ -345,18 +504,34 @@ files:[file]
 
 }else{
 
-const url = URL.createObjectURL(blob);
+const url =
+URL.createObjectURL(blob);
 
-const a = document.createElement("a");
+const a =
+document.createElement("a");
+
 a.href = url;
-a.download = "WaterBill.png";
+
+a.download =
+"WaterBill.png";
+
+document.body.appendChild(a);
+
 a.click();
 
+document.body.removeChild(a);
+
 URL.revokeObjectURL(url);
+
+alert(
+"Bill image downloaded successfully."
+);
 
 }
 
 }catch(error){
+
+console.error(error);
 
 alert(error.message);
 
@@ -364,68 +539,35 @@ alert(error.message);
 
 }
 
-function shareWhatsApp(){
-
-const apartment =
-document.getElementById("apartment").value;
-
-const flat =
-document.getElementById("flat").value;
-
-const customer =
-document.getElementById("customerName").value;
-
-const liters =
-document.getElementById("outLiters").innerText;
-
-const bill =
-document.getElementById("outBill").innerText;
-
-const billDate =
-new Date().toLocaleDateString("en-IN");
-
-const message =
-
-`💧 WATER BILL
-
-Apartment: ${apartment}
-
-Flat: ${flat}
-
-Tenant: ${customer}
-
-Date: ${billDate}
-
-Water Consumed: ${liters}
-
-Amount Payable: ${bill}
-
-Thank You`;
-
-window.open(
-'https://wa.me/?text=' +
-encodeURIComponent(message),
-'_blank'
-);
-
-}
-
 function saveBillHistory(
 flat,
-customer,
+tenant,
 liters,
 amount
 ){
 
 let bills =
-JSON.parse(localStorage.getItem("waterBills")) || [];
+JSON.parse(
+localStorage.getItem("waterBills")
+) || [];
 
 bills.push({
-date:new Date().toLocaleDateString("en-IN"),
-flat:flat,
-customer:customer,
-liters:liters,
-amount:amount.toFixed(2)
+
+date:
+new Date().toLocaleDateString("en-IN"),
+
+flat:
+flat,
+
+tenant:
+tenant,
+
+liters:
+liters,
+
+amount:
+amount.toFixed(2)
+
 });
 
 localStorage.setItem(
@@ -440,23 +582,30 @@ loadHistory();
 function loadHistory(){
 
 let bills =
-JSON.parse(localStorage.getItem("waterBills")) || [];
+JSON.parse(
+localStorage.getItem("waterBills")
+) || [];
 
 const tbody =
-document.querySelector("#historyTable tbody");
+document.querySelector(
+"#historyTable tbody"
+);
 
-tbody.innerHTML="";
+tbody.innerHTML = "";
 
-[...bills].reverse().forEach(bill=>{
+[...bills]
+.reverse()
+.forEach(bill => {
 
 tbody.innerHTML += `
 <tr>
 <td>${bill.date}</td>
 <td>${bill.flat}</td>
-<td>${bill.customer}</td>
+<td>${bill.tenant}</td>
 <td>${bill.liters}</td>
 <td>₹${bill.amount}</td>
-</tr>`;
+</tr>
+`;
 
 });
 
@@ -464,9 +613,15 @@ tbody.innerHTML += `
 
 function clearHistory(){
 
-if(confirm("Delete all bill history?")){
+if(
+confirm(
+"Delete all bill history?"
+)
+){
 
-localStorage.removeItem("waterBills");
+localStorage.removeItem(
+"waterBills"
+);
 
 loadHistory();
 
@@ -479,8 +634,3 @@ window.onload = function(){
 loadHistory();
 
 };
-
-</script>
-
-</body>
-</html>
