@@ -1,636 +1,319 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Water Bill Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apartment Water Bill Generator</title>
+    <!-- Supported library loaded via CDN -->
+    <script src="https://cloudflare.com"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: #f5f7fa;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: auto;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2.main-title {
+            text-align: center;
+            color: #0077b6;
+            margin-bottom: 5px;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 14px;
+            margin: 5px 0 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #0077b6;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .btn-calc {
+            background: #0077b6;
+            color: white;
+        }
+        .btn-calc:hover {
+            background: #005f94;
+        }
+        .btn-refresh {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-refresh:hover {
+            background: #5a6268;
+        }
+        .share-btn {
+            background: #28a745;
+            color: white;
+            display: none;
+            font-size: 18px;
+            padding: 16px;
+        }
+        .share-btn:hover {
+            background: #218838;
+        }
+        .preview-btn {
+            background: #17a2b8;
+            color: white;
+            display: none;
+        }
+        .preview-btn:hover {
+            background: #138496;
+        }
+        .history-btn {
+            background: #ffc107;
+            color: #212529;
+            margin-top: 15px;
+        }
+        #billCard {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 20px;
+            background: #ffffff;
+            border: 2px solid #0077b6;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .apartment-title {
+            text-align: center;
+            color: #0077b6;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .bill-subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            gap: 10px;
+        }
+        .row span:last-child {
+            text-align: right;
+            word-break: break-word;
+            font-weight: bold;
+        }
+        .total {
+            font-size: 24px;
+            color: #d32f2f;
+            font-weight: bold;
+            border-bottom: none;
+            margin-top: 5px;
+        }
+        #historySection {
+            display: none;
+            margin-top: 20px;
+            border-top: 2px dashed #ccc;
+            padding-top: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 13px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-<style>
-  </style>
-
+        /* Mobile Responsive Adjustments */
+        @media screen and (max-width:600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 12px;
+            }
+            .apartment-title {
+                font-size: 22px;
+            }
+            .bill-subtitle {
+                font-size: 12px;
+            }
+            .total {
+                font-size: 22px;
+            }
+            .row {
+                font-size: 13px;
+            }
+            th, td {
+                font-size: 12px;
+                padding: 6px;
+            }
+            button {
+                font-size: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
+    <h2 class="main-title">Water Bill Calculator</h2>
+    <p class="subtitle">Generate clear and printable residential utility bills</p>
+    
+    <div class="form-group">
+        <label for="flatNo">Flat / Apartment Number:</label>
+        <input type="text" id="flatNo" placeholder="e.g., Block A - 302">
+        
+        <label for="prevReading">Previous Reading (KL/Units):</label>
+        <input type="number" id="prevReading" placeholder="Enter previous value">
+        
+        <label for="currReading">Current Reading (KL/Units):</label>
+        <input type="number" id="currReading" placeholder="Enter current value">
+        
+        <label for="ratePerUnit">Rate per Unit ($/₹):</label>
+        <input type="number" id="ratePerUnit" value="15" placeholder="Enter rate per unit">
+        
+        <label for="fixedCharges">Fixed Maintenance Charges (Optional):</label>
+        <input type="number" id="fixedCharges" value="0" placeholder="Enter fixed charges">
+    </div>
 
-<h2>💧 Water Bill Calculator</h2>
+    <button class="btn-calc" onclick="calculateBill()">Calculate Bill</button>
+    <button class="btn-refresh" onclick="refreshForm()">🔄 New Bill</button>
+    <button class="share-btn" id="shareBtn" onclick="shareBillImage()">📤 Share Bill Image</button>
+    <button class="preview-btn" id="previewBtn" onclick="printPreview()">👁️ Print Preview</button>
+    <button class="history-btn" onclick="toggleHistory()">📋 Bill History</button>
 
-<input type="text" id="apartment" placeholder="Apartment Name">
+    <!-- Structural Bill Invoice -->
+    <div id="billCard">
+        <div class="apartment-title">WATER UTILITY BILL</div>
+        <div class="bill-subtitle" id="billDate">Date: --/--/----</div>
+        
+        <div class="row">
+            <span>Flat No:</span>
+            <span id="resFlat">--</span>
+        </div>
+        <div class="row">
+            <span>Previous Reading:</span>
+            <span id="resPrev">0</span>
+        </div>
+        <div class="row">
+            <span>Current Reading:</span>
+            <span id="resCurr">0</span>
+        </div>
+        <div class="row">
+            <span>Total Consumption:</span>
+            <span id="resUnits">0 Units</span>
+        </div>
+        <div class="row">
+            <span>Rate per Unit:</span>
+            <span id="resRate">0</span>
+        </div>
+        <div class="row">
+            <span>Fixed / Extra Charges:</span>
+            <span id="resFixed">0</span>
+        </div>
+        <div class="row total">
+            <span>Total Due:</span>
+            <span id="resTotal">0.00</span>
+        </div>
+    </div>
 
-<input type="text" id="flat" placeholder="Flat Number">
-
-<input type="text" id="customerName" placeholder="Tenant Name">
-
-<input type="number" id="currentReading" placeholder="Current Reading">
-
-<input type="number" id="previousReading" placeholder="Previous Reading">
-
-<input type="number" id="paisaRate" value="11" placeholder="Paisa Per Liter">
-
-<button class="calculate-btn" onclick="calculateBill()">
-Calculate Bill
-</button>
-
-<button class="new-btn" onclick="refreshForm()">
-🔄 New Bill
-</button>
-
-<button
-style="background:#6c757d;color:white;"
-onclick="toggleHistory()">
-📋 Bill History
-</button>
-
-<div id="billCard">
-
-<div class="apartment-title">
-💧 WATER CONSUMPTION BILL
-</div>
-
-<div class="bill-subtitle">
-Generated Water Usage Statement
-</div>
-
-<hr>
-
-<div class="row">
-<span><b>Apartment</b></span>
-<span id="outApartment"></span>
-</div>
-
-<div class="row">
-<span><b>Flat No</b></span>
-<span id="outFlat"></span>
-</div>
-
-<div class="row">
-<span><b>Tenant</b></span>
-<span id="outCustomer"></span>
-</div>
-
-<div class="row">
-<span><b>Date</b></span>
-<span id="outDate"></span>
-</div>
-
-<hr>
-
-<div class="row">
-<span><b>Current Reading</b></span>
-<span id="outCurrent"></span>
-</div>
-
-<div class="row">
-<span><b>Previous Reading</b></span>
-<span id="outPrevious"></span>
-</div>
-
-<div class="row">
-<span><b>Water Consumed</b></span>
-<span id="outLiters"></span>
-</div>
-
-<hr>
-
-<div class="row total">
-<span>TOTAL BILL</span>
-<span id="outBill"></span>
-</div>
-
-<div class="thankyou">
-Thank You
-</div>
-
-</div>
-
-<button
-id="shareBtn"
-class="share-btn"
-onclick="shareBill()">
-📤 Share Bill Image
-</button>
-
-<div id="historySection" style="display:none;">
-
-<hr>
-
-<h3>📋 Bill History</h3>
-
-<table id="historyTable">
-
-<thead>
-<tr>
-<th>Date</th>
-<th>Flat</th>
-<th>Tenant</th>
-<th>Liters</th>
-<th>Bill</th>
-</tr>
-</thead>
-
-<tbody></tbody>
-
-</table>
-
-<button
-class="clear-btn"
-onclick="clearHistory()">
-🗑 Clear History
-</button>
-
-</div>
-
+    <!-- History Panel -->
+    <div id="historySection">
+        <h3>Calculation Log</h3>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Flat</th>
+                    <th>Units</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Items dynamically append here -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-  </script>
-
-</body>
-</html>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:#f5f7fa;
-padding:20px;
-}
-
-.container{
-max-width:800px;
-margin:auto;
-background:#ffffff;
-padding:20px;
-border-radius:15px;
-box-shadow:0 4px 15px rgba(0,0,0,0.1);
-}
-
-h2,h3{
-text-align:center;
-margin-bottom:15px;
-color:#0077b6;
-}
-
-input{
-width:100%;
-padding:12px;
-margin:8px 0;
-border:1px solid #ccc;
-border-radius:8px;
-font-size:15px;
-}
-
-button{
-width:100%;
-padding:12px;
-margin-top:10px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-size:16px;
-font-weight:bold;
-}
-
-.calculate-btn{
-background:#0077b6;
-color:white;
-}
-
-.new-btn{
-background:#ff9800;
-color:white;
-}
-
-.share-btn{
-background:#28a745;
-color:white;
-display:none;
-}
-
-.clear-btn{
-background:#dc3545;
-color:white;
-}
-
-#billCard{
-display:none;
-margin-top:20px;
-padding:25px;
-border-radius:15px;
-background:#ffffff;
-border:3px solid #0077b6;
-box-shadow:0 4px 15px rgba(0,0,0,.15);
-}
-
-.apartment-title{
-text-align:center;
-font-size:28px;
-font-weight:bold;
-color:#0077b6;
-margin-bottom:10px;
-}
-
-.bill-subtitle{
-text-align:center;
-font-size:14px;
-color:#666;
-margin-bottom:20px;
-}
-
-.row{
-display:flex;
-justify-content:space-between;
-padding:10px 0;
-border-bottom:1px solid #eee;
-}
-
-.row span{
-font-size:15px;
-}
-
-.total{
-font-size:28px;
-font-weight:bold;
-color:#d32f2f;
-padding-top:15px;
-}
-
-.thankyou{
-text-align:center;
-margin-top:20px;
-font-size:13px;
-color:#666;
-font-style:italic;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:15px;
-}
-
-th{
-background:#0077b6;
-color:white;
-padding:10px;
-}
-
-td{
-border:1px solid #ddd;
-padding:8px;
-text-align:center;
-}
-
-#historySection{
-display:none;
-margin-top:20px;
-}
-
-@media(max-width:600px){
-
-.row{
-font-size:14px;
-}
-
-.total{
-font-size:22px;
-}
-
-.apartment-title{
-font-size:22px;
-}
-
-}
-function toggleHistory(){
-
-const historySection =
-document.getElementById("historySection");
-
-historySection.style.display =
-historySection.style.display === "none"
-? "block"
-: "none";
-
-}
-
-function calculateBill(){
-
-let apartment =
-document.getElementById("apartment").value.trim();
-
-let flat =
-document.getElementById("flat").value.trim();
-
-let tenant =
-document.getElementById("customerName").value.trim();
-
-let current =
-parseFloat(
-document.getElementById("currentReading").value
-);
-
-let previous =
-parseFloat(
-document.getElementById("previousReading").value
-);
-
-let paisaRate =
-parseFloat(
-document.getElementById("paisaRate").value
-);
-
-if(
-apartment === "" ||
-flat === "" ||
-tenant === ""
-){
-alert("Please fill all details");
-return;
-}
-
-if(
-isNaN(current) ||
-isNaN(previous)
-){
-alert("Please enter readings");
-return;
-}
-
-if(current < previous){
-alert(
-"Current reading cannot be less than previous reading"
-);
-return;
-}
-
-let billDate =
-new Date().toLocaleDateString("en-IN");
-
-let liters =
-(current - previous) * 10;
-
-let amount =
-(liters * paisaRate) / 100;
-
-document.getElementById("outApartment").innerText =
-apartment;
-
-document.getElementById("outFlat").innerText =
-flat;
-
-document.getElementById("outCustomer").innerText =
-tenant;
-
-document.getElementById("outDate").innerText =
-billDate;
-
-document.getElementById("outCurrent").innerText =
-current;
-
-document.getElementById("outPrevious").innerText =
-previous;
-
-document.getElementById("outLiters").innerText =
-liters + " Liters";
-
-document.getElementById("outBill").innerText =
-"₹" + amount.toFixed(2);
-
-document.getElementById("billCard").style.display =
-"block";
-
-document.getElementById("shareBtn").style.display =
-"block";
-
-saveBillHistory(
-flat,
-tenant,
-liters,
-amount
-);
-
-}
-
-function refreshForm(){
-
-document.getElementById("apartment").value = "";
-
-document.getElementById("flat").value = "";
-
-document.getElementById("customerName").value = "";
-
-document.getElementById("currentReading").value = "";
-
-document.getElementById("previousReading").value = "";
-
-document.getElementById("paisaRate").value = "11";
-
-document.getElementById("billCard").style.display =
-"none";
-
-document.getElementById("shareBtn").style.display =
-"none";
-
-}
-
-async function shareBill(){
-
-try{
-
-const billCard =
-document.getElementById("billCard");
-
-if(!billCard){
-
-alert("Bill not found");
-
-return;
-
-}
-
-const canvas =
-await html2canvas(
-billCard,
-{
-scale:3,
-backgroundColor:"#ffffff",
-useCORS:true
-}
-);
-
-const blob =
-await new Promise(resolve =>
-canvas.toBlob(
-resolve,
-"image/png",
-1.0
-)
-);
-
-if(!blob){
-
-alert("Unable to create image");
-
-return;
-
-}
-
-const file =
-new File(
-[blob],
-"WaterBill.png",
-{
-type:"image/png"
-}
-);
-
-if(
-navigator.share &&
-navigator.canShare &&
-navigator.canShare({
-files:[file]
-})
-){
-
-await navigator.share({
-title:"Water Bill",
-files:[file]
-});
-
-}else{
-
-const url =
-URL.createObjectURL(blob);
-
-const a =
-document.createElement("a");
-
-a.href = url;
-
-a.download =
-"WaterBill.png";
-
-document.body.appendChild(a);
-
-a.click();
-
-document.body.removeChild(a);
-
-URL.revokeObjectURL(url);
-
-alert(
-"Bill image downloaded successfully."
-);
-
-}
-
-}catch(error){
-
-console.error(error);
-
-alert(error.message);
-
-}
-
-}
-
-function saveBillHistory(
-flat,
-tenant,
-liters,
-amount
-){
-
-let bills =
-JSON.parse(
-localStorage.getItem("waterBills")
-) || [];
-
-bills.push({
-
-date:
-new Date().toLocaleDateString("en-IN"),
-
-flat:
-flat,
-
-tenant:
-tenant,
-
-liters:
-liters,
-
-amount:
-amount.toFixed(2)
-
-});
-
-localStorage.setItem(
-"waterBills",
-JSON.stringify(bills)
-);
-
-loadHistory();
-
-}
-
-function loadHistory(){
-
-let bills =
-JSON.parse(
-localStorage.getItem("waterBills")
-) || [];
-
-const tbody =
-document.querySelector(
-"#historyTable tbody"
-);
-
-tbody.innerHTML = "";
-
-[...bills]
-.reverse()
-.forEach(bill => {
-
-tbody.innerHTML += `
-<tr>
-<td>${bill.date}</td>
-<td>${bill.flat}</td>
-<td>${bill.tenant}</td>
-<td>${bill.liters}</td>
-<td>₹${bill.amount}</td>
-</tr>
-`;
-
-});
-
-}
-
-function clearHistory(){
-
-if(
-confirm(
-"Delete all bill history?"
-)
-){
-
-localStorage.removeItem(
-"waterBills"
-);
-
-loadHistory();
-
-}
-
-}
-
-window.onload = function(){
-
-loadHistory();
-
-};
+    let billHistory = [];
+
+    function calculateBill() {
+        const flatNo = document.getElementById("flatNo").value.trim() || "N/A";
+        const prevReading = parseFloat(document.getElementById("prevReading").value) || 0;
+        const currReading = parseFloat(document.getElementById("currReading").value) || 0;
+        const ratePerUnit = parseFloat(document.getElementById("ratePerUnit").value) || 0;
+        const fixedCharges = parseFloat(document.getElementById("fixedCharges").value) || 0;
+
+        if (currReading < prevReading) {
+            alert("Error: Current reading cannot be less than the previous reading.");
+            return;
+        }
+
+        const unitsConsumed = currReading - prevReading;
+        const totalAmount = (unitsConsumed * ratePerUnit) + fixedCharges;
+        
+        const today = new Date();
+        const dateString = today.toLocaleDateString() + " " + today.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        document.getElementById("billDate").innerText = "Generated: " + dateString;
+        document.getElementById("resFlat").innerText = flatNo;
+        document.getElementById("resPrev").innerText = prevReading;
+        document.getElementById("resCurr").innerText = currReading;
+        document.getElementById("resUnits").innerText = unitsConsumed + " Units";
+        document.getElementById("resRate").innerText = ratePerUnit;
+        document.getElementById("resFixed").innerText = fixedCharges;
+        document.getElementById("resTotal").innerText = totalAmount.toFixed(2);
+
+        document.getElementById("billCard").style.display = "block";
+        document.getElementById("shareBtn").style.display = "block";
+        document.getElementById("previewBtn").style.display = "block";
+
+        // Record history log
