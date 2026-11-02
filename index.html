@@ -56,24 +56,29 @@ font-size:16px;
 
 .calculate-btn{
 background:#0077b6;
-color:#fff;
+color:white;
+}
+
+.new-btn{
+background:#ff9800;
+color:white;
 }
 
 .share-btn{
 background:#28a745;
-color:#fff;
+color:white;
 display:none;
 }
 
 .whatsapp-btn{
 background:#25D366;
-color:#fff;
+color:white;
 display:none;
 }
 
 .clear-btn{
 background:#dc3545;
-color:#fff;
+color:white;
 }
 
 #billCard{
@@ -82,7 +87,7 @@ margin-top:20px;
 padding:20px;
 border:2px solid #0077b6;
 border-radius:12px;
-background:#fff;
+background:white;
 }
 
 .bill-title{
@@ -137,9 +142,7 @@ text-align:center;
 
 <input type="text" id="flat" placeholder="Flat Number">
 
-<input type="text" id="customerName" placeholder="Customer Name">
-
-<input type="text" id="mobileNumber" placeholder="Mobile Number">
+<input type="text" id="customerName" placeholder="Tenant Name">
 
 <input type="month" id="billingMonth">
 
@@ -151,10 +154,12 @@ text-align:center;
 
 <input type="number" id="paisaRate" value="11" placeholder="Paisa Per Liter">
 
-<button
-class="calculate-btn"
-onclick="calculateBill()">
+<button class="calculate-btn" onclick="calculateBill()">
 Calculate Bill
+</button>
+
+<button class="new-btn" onclick="refreshForm()">
+🔄 New Bill
 </button>
 
 <div id="billCard">
@@ -174,13 +179,8 @@ WATER CONSUMPTION BILL
 </div>
 
 <div class="row">
-<span>Customer</span>
+<span>Tenant</span>
 <span id="outCustomer"></span>
-</div>
-
-<div class="row">
-<span>Mobile</span>
-<span id="outMobile"></span>
 </div>
 
 <div class="row">
@@ -215,15 +215,13 @@ WATER CONSUMPTION BILL
 
 </div>
 
-<button
-id="shareBtn"
+<button id="shareBtn"
 class="share-btn"
 onclick="shareBill()">
 📤 Share Bill Image
 </button>
 
-<button
-id="whatsappBtn"
+<button id="whatsappBtn"
 class="whatsapp-btn"
 onclick="shareWhatsApp()">
 📱 Share via WhatsApp
@@ -240,7 +238,7 @@ onclick="shareWhatsApp()">
 <tr>
 <th>Date</th>
 <th>Flat</th>
-<th>Customer</th>
+<th>Tenant</th>
 <th>Liters</th>
 <th>Bill</th>
 </tr>
@@ -260,8 +258,9 @@ onclick="clearHistory()">
 </div>
 
 <script>
+  function calculateBill(){
 
-function calculateBill(){
+console.log("📊 Calculation Started");
 
 let apartment =
 document.getElementById("apartment").value;
@@ -271,9 +270,6 @@ document.getElementById("flat").value;
 
 let customer =
 document.getElementById("customerName").value;
-
-let mobile =
-document.getElementById("mobileNumber").value;
 
 let billingMonth =
 document.getElementById("billingMonth").value;
@@ -299,7 +295,6 @@ document.getElementById("paisaRate").value
 if(isNaN(current) || isNaN(previous)){
 
 alert("Please enter readings");
-
 return;
 
 }
@@ -323,6 +318,13 @@ units * 10;
 let amount =
 (liters * paisaRate)/100;
 
+console.log("Apartment:", apartment);
+console.log("Flat:", flat);
+console.log("Tenant:", customer);
+console.log("Units:", units);
+console.log("Liters:", liters);
+console.log("Amount:", amount);
+
 document.getElementById("outApartment").innerText =
 apartment;
 
@@ -331,9 +333,6 @@ flat;
 
 document.getElementById("outCustomer").innerText =
 customer;
-
-document.getElementById("outMobile").innerText =
-mobile;
 
 document.getElementById("outMonth").innerText =
 billingMonth;
@@ -371,7 +370,33 @@ amount
 
 }
 
+function refreshForm(){
+
+document.getElementById("apartment").value = "";
+document.getElementById("flat").value = "";
+document.getElementById("customerName").value = "";
+document.getElementById("billingMonth").value = "";
+document.getElementById("dueDate").value = "";
+document.getElementById("currentReading").value = "";
+document.getElementById("previousReading").value = "";
+document.getElementById("paisaRate").value = "11";
+
+document.getElementById("billCard").style.display =
+"none";
+
+document.getElementById("shareBtn").style.display =
+"none";
+
+document.getElementById("whatsappBtn").style.display =
+"none";
+
+console.log("🔄 New Bill Form Reset");
+
+}
+
 async function shareBill(){
+
+console.log("📤 Generating Bill Image");
 
 try{
 
@@ -379,11 +404,17 @@ const billCard =
 document.getElementById("billCard");
 
 const canvas =
-await html2canvas(billCard,{scale:2});
+await html2canvas(
+billCard,
+{scale:2}
+);
 
 const blob =
 await new Promise(resolve =>
-canvas.toBlob(resolve,"image/png")
+canvas.toBlob(
+resolve,
+"image/png"
+)
 );
 
 const file =
@@ -413,17 +444,18 @@ const a =
 document.createElement("a");
 
 a.href = url;
-
-a.download =
-"WaterBill.png";
-
+a.download = "WaterBill.png";
 a.click();
 
 URL.revokeObjectURL(url);
 
 }
 
+console.log("✅ Bill Shared");
+
 }catch(error){
+
+console.error(error);
 
 alert(error.message);
 
@@ -432,6 +464,8 @@ alert(error.message);
 }
 
 function shareWhatsApp(){
+
+console.log("📱 WhatsApp Share Started");
 
 const apartment =
 document.getElementById("apartment").value;
@@ -459,7 +493,7 @@ Apartment: ${apartment}
 
 Flat: ${flat}
 
-Customer: ${customer}
+Tenant: ${customer}
 
 Water Consumed: ${liters}
 
@@ -484,18 +518,31 @@ liters,
 amount
 ){
 
+console.log("💾 Saving Bill");
+
 let bills =
 JSON.parse(
-localStorage.getItem("waterBills")
+localStorage.getItem(
+"waterBills"
+)
 ) || [];
 
 bills.push({
 
-date:new Date().toLocaleDateString(),
-flat:flat,
-customer:customer,
-liters:liters,
-amount:amount.toFixed(2)
+date:
+new Date().toLocaleDateString(),
+
+flat:
+flat,
+
+customer:
+customer,
+
+liters:
+liters,
+
+amount:
+amount.toFixed(2)
 
 });
 
@@ -510,9 +557,13 @@ loadHistory();
 
 function loadHistory(){
 
+console.log("📋 Loading History");
+
 let bills =
 JSON.parse(
-localStorage.getItem("waterBills")
+localStorage.getItem(
+"waterBills"
+)
 ) || [];
 
 const tbody =
@@ -520,7 +571,7 @@ document.querySelector(
 "#historyTable tbody"
 );
 
-tbody.innerHTML="";
+tbody.innerHTML = "";
 
 [...bills]
 .reverse()
@@ -548,9 +599,11 @@ tbody.innerHTML +=
 
 function clearHistory(){
 
-if(confirm(
+if(
+confirm(
 "Delete all bill history?"
-)){
+)
+){
 
 localStorage.removeItem(
 "waterBills"
@@ -565,6 +618,10 @@ loadHistory();
 window.onload = function(){
 
 loadHistory();
+
+console.log(
+"✅ Water Bill App Loaded"
+);
 
 };
 
