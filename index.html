@@ -8,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
-
 *{
 margin:0;
 padding:0;
@@ -128,7 +127,6 @@ border:1px solid #ddd;
 padding:8px;
 text-align:center;
 }
-
 </style>
 </head>
 
@@ -143,8 +141,6 @@ text-align:center;
 <input type="text" id="flat" placeholder="Flat Number">
 
 <input type="text" id="customerName" placeholder="Tenant Name">
-
-<input type="month" id="billingMonth">
 
 <input type="number" id="currentReading" placeholder="Current Reading">
 
@@ -179,11 +175,6 @@ WATER CONSUMPTION BILL
 <div class="row">
 <span>Tenant</span>
 <span id="outCustomer"></span>
-</div>
-
-<div class="row">
-<span>Billing Month</span>
-<span id="outMonth"></span>
 </div>
 
 <div class="row">
@@ -232,7 +223,6 @@ onclick="shareWhatsApp()">
 <table id="historyTable">
 
 <thead>
-
 <tr>
 <th>Date</th>
 <th>Flat</th>
@@ -240,7 +230,6 @@ onclick="shareWhatsApp()">
 <th>Liters</th>
 <th>Bill</th>
 </tr>
-
 </thead>
 
 <tbody></tbody>
@@ -267,26 +256,17 @@ document.getElementById("flat").value;
 let customer =
 document.getElementById("customerName").value;
 
-let billingMonth =
-document.getElementById("billingMonth").value;
-
 let billDate =
-new Date().toLocaleDateString();
+new Date().toLocaleDateString("en-IN");
 
 let current =
-parseFloat(
-document.getElementById("currentReading").value
-);
+parseFloat(document.getElementById("currentReading").value);
 
 let previous =
-parseFloat(
-document.getElementById("previousReading").value
-);
+parseFloat(document.getElementById("previousReading").value);
 
 let paisaRate =
-parseFloat(
-document.getElementById("paisaRate").value
-);
+parseFloat(document.getElementById("paisaRate").value);
 
 if(isNaN(current) || isNaN(previous)){
 alert("Please enter readings");
@@ -300,14 +280,11 @@ return;
 
 let units = current - previous;
 let liters = units * 10;
-
-let amount =
-(liters * paisaRate) / 100;
+let amount = (liters * paisaRate) / 100;
 
 document.getElementById("outApartment").innerText = apartment;
 document.getElementById("outFlat").innerText = flat;
 document.getElementById("outCustomer").innerText = customer;
-document.getElementById("outMonth").innerText = billingMonth;
 document.getElementById("outDate").innerText = billDate;
 document.getElementById("outCurrent").innerText = current;
 document.getElementById("outPrevious").innerText = previous;
@@ -318,12 +295,7 @@ document.getElementById("billCard").style.display = "block";
 document.getElementById("shareBtn").style.display = "block";
 document.getElementById("whatsappBtn").style.display = "block";
 
-saveBillHistory(
-flat,
-customer,
-liters,
-amount
-);
+saveBillHistory(flat,customer,liters,amount);
 
 }
 
@@ -332,7 +304,6 @@ function refreshForm(){
 document.getElementById("apartment").value="";
 document.getElementById("flat").value="";
 document.getElementById("customerName").value="";
-document.getElementById("billingMonth").value="";
 document.getElementById("currentReading").value="";
 document.getElementById("previousReading").value="";
 document.getElementById("paisaRate").value="11";
@@ -351,10 +322,7 @@ const billCard =
 document.getElementById("billCard");
 
 const canvas =
-await html2canvas(
-billCard,
-{scale:2}
-);
+await html2canvas(billCard,{scale:2});
 
 const blob =
 await new Promise(resolve =>
@@ -362,11 +330,7 @@ canvas.toBlob(resolve,"image/png")
 );
 
 const file =
-new File(
-[blob],
-"WaterBill.png",
-{type:"image/png"}
-);
+new File([blob],"WaterBill.png",{type:"image/png"});
 
 if(
 navigator.share &&
@@ -381,12 +345,9 @@ files:[file]
 
 }else{
 
-const url =
-URL.createObjectURL(blob);
+const url = URL.createObjectURL(blob);
 
-const a =
-document.createElement("a");
-
+const a = document.createElement("a");
 a.href = url;
 a.download = "WaterBill.png";
 a.click();
@@ -421,7 +382,7 @@ const bill =
 document.getElementById("outBill").innerText;
 
 const billDate =
-new Date().toLocaleDateString();
+new Date().toLocaleDateString("en-IN");
 
 const message =
 
@@ -457,12 +418,10 @@ amount
 ){
 
 let bills =
-JSON.parse(
-localStorage.getItem("waterBills")
-) || [];
+JSON.parse(localStorage.getItem("waterBills")) || [];
 
 bills.push({
-date:new Date().toLocaleDateString(),
+date:new Date().toLocaleDateString("en-IN"),
 flat:flat,
 customer:customer,
 liters:liters,
@@ -481,20 +440,14 @@ loadHistory();
 function loadHistory(){
 
 let bills =
-JSON.parse(
-localStorage.getItem("waterBills")
-) || [];
+JSON.parse(localStorage.getItem("waterBills")) || [];
 
 const tbody =
-document.querySelector(
-"#historyTable tbody"
-);
+document.querySelector("#historyTable tbody");
 
 tbody.innerHTML="";
 
-[...bills]
-.reverse()
-.forEach(bill=>{
+[...bills].reverse().forEach(bill=>{
 
 tbody.innerHTML += `
 <tr>
