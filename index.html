@@ -1,316 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apartment Water Bill Generator</title>
-    <!-- Supported library loaded via CDN -->
-    <script src="https://cloudflare.com"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-        body {
-            background: #f5f7fa;
-            padding: 20px;
-            color: #333;
-        }
-        .container {
-            width: 100%;
-            max-width: 500px;
-            margin: auto;
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        h2.main-title {
-            text-align: center;
-            color: #0077b6;
-            margin-bottom: 5px;
-        }
-        p.subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-        input {
-            width: 100%;
-            padding: 14px;
-            margin: 5px 0 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            font-size: 16px;
-            outline: none;
-        }
-        input:focus {
-            border-color: #0077b6;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-        .btn-calc {
-            background: #0077b6;
-            color: white;
-        }
-        .btn-calc:hover {
-            background: #005f94;
-        }
-        .btn-refresh {
-            background: #6c757d;
-            color: white;
-        }
-        .btn-refresh:hover {
-            background: #5a6268;
-        }
-        .share-btn {
-            background: #28a745;
-            color: white;
-            display: none;
-            font-size: 18px;
-            padding: 16px;
-        }
-        .share-btn:hover {
-            background: #218838;
-        }
-        .preview-btn {
-            background: #17a2b8;
-            color: white;
-            display: none;
-        }
-        .preview-btn:hover {
-            background: #138496;
-        }
-        .history-btn {
-            background: #ffc107;
-            color: #212529;
-            margin-top: 15px;
-        }
-        #billCard {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 20px;
-            background: #ffffff;
-            border: 2px solid #0077b6;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .apartment-title {
-            text-align: center;
-            color: #0077b6;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .bill-subtitle {
-            text-align: center;
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 15px;
-        }
-        .row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-            gap: 10px;
-        }
-        .row span:last-child {
-            text-align: right;
-            word-break: break-word;
-            font-weight: bold;
-        }
-        .total {
-            font-size: 24px;
-            color: #d32f2f;
-            font-weight: bold;
-            border-bottom: none;
-            margin-top: 5px;
-        }
-        #historySection {
-            display: none;
-            margin-top: 20px;
-            border-top: 2px dashed #ccc;
-            padding-top: 15px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-            font-size: 13px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        /* Mobile Responsive Adjustments */
-        @media screen and (max-width:600px) {
-            body {
-                padding: 10px;
-            }
-            .container {
-                padding: 12px;
-            }
-            .apartment-title {
-                font-size: 22px;
-            }
-            .bill-subtitle {
-                font-size: 12px;
-            }
-            .total {
-                font-size: 22px;
-            }
-            .row {
-                font-size: 13px;
-            }
-            th, td {
-                font-size: 12px;
-                padding: 6px;
-            }
-            button {
-                font-size: 15px;
-            }
-        }
-    </style>
+<title>Water Bill Calculator</title>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:#f5f7fa;
+    padding:20px;
+    margin:0;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+h2{
+    text-align:center;
+    color:#0077b6;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.calculate-btn{
+    background:#0077b6;
+    color:white;
+}
+
+.share-btn{
+    background:#28a745;
+    color:white;
+    display:none;
+}
+
+#billCard{
+    display:none;
+    margin-top:20px;
+    padding:20px;
+    border:2px solid #0077b6;
+    border-radius:12px;
+    background:#ffffff;
+}
+
+.bill-title{
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+    color:#0077b6;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    margin:10px 0;
+}
+
+.total{
+    color:red;
+    font-size:22px;
+    font-weight:bold;
+}
+
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <h2 class="main-title">Water Bill Calculator</h2>
-    <p class="subtitle">Generate clear and printable residential utility bills</p>
-    
-    <div class="form-group">
-        <label for="flatNo">Flat / Apartment Number:</label>
-        <input type="text" id="flatNo" placeholder="e.g., Block A - 302">
-        
-        <label for="prevReading">Previous Reading (Liters):</label>
-        <input type="number" id="prevReading" placeholder="Enter previous value">
-        
-        <label for="currReading">Current Reading (Liters):</label>
-        <input type="number" id="currReading" placeholder="Enter current value">
-        
-        <label for="ratePerUnit">Rate per Liter (in Paise):</label>
-        <input type="number" id="ratePerUnit" value="11" placeholder="e.g., 11">
-        
-        <label for="fixedCharges">Fixed Maintenance Charges (₹ - Optional):</label>
-        <input type="number" id="fixedCharges" value="0" placeholder="Enter fixed charges">
-    </div>
 
-    <button class="btn-calc" onclick="calculateBill()">Calculate Bill</button>
-    <button class="btn-refresh" onclick="refreshForm()">🔄 New Bill</button>
-    <button class="share-btn" id="shareBtn" onclick="shareBillImage()">📤 Share Bill Image</button>
-    <button class="preview-btn" id="previewBtn" onclick="printPreview()">👁️ Print Preview</button>
-    <button class="history-btn" onclick="toggleHistory()">📋 Bill History</button>
+<h2>💧 Water Bill Calculator</h2>
 
-    <!-- Formatted Bill Invoice Panel -->
-    <div id="billCard">
-        <div class="apartment-title">WATER UTILITY BILL</div>
-        <div class="bill-subtitle" id="billDate">Date: --/--/----</div>
-        
-        <div class="row">
-            <span>Flat No:</span>
-            <span id="resFlat">--</span>
-        </div>
-        <div class="row">
-            <span>Previous Reading:</span>
-            <span id="resPrev">0 L</span>
-        </div>
-        <div class="row">
-            <span>Current Reading:</span>
-            <span id="resCurr">0 L</span>
-        </div>
-        <div class="row">
-            <span>Total Consumption:</span>
-            <span id="resUnits">0 Liters</span>
-        </div>
-        <div class="row">
-            <span>Rate per Liter:</span>
-            <span id="resRate">0 Paise</span>
-        </div>
-        <div class="row">
-            <span>Fixed / Extra Charges:</span>
-            <span id="resFixed">₹0.00</span>
-        </div>
-        <div class="row total">
-            <span>Total Due:</span>
-            <span id="resTotal">₹0.00</span>
-        </div>
-    </div>
+<input type="text" id="apartment" placeholder="Apartment Name">
 
-    <!-- History Panel -->
-    <div id="historySection">
-        <h3>Calculation Log</h3>
-        <table id="historyTable">
-            <thead>
-                <tr>
-                    <th>Flat</th>
-                    <th>Liters</th>
-                    <th>Total (₹)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Logs dynamically added here -->
-            </tbody>
-        </table>
-    </div>
+<input type="text" id="flat" placeholder="Flat Number">
+
+<input type="number" id="currentReading" placeholder="Current Reading">
+
+<input type="number" id="previousReading" placeholder="Previous Reading">
+
+<input type="number"
+       id="paisaRate"
+       value="11"
+       placeholder="Paisa Per Liter">
+
+<button class="calculate-btn" onclick="calculateBill()">
+Calculate Bill
+</button>
+
+<div id="billCard">
+
+<div class="bill-title">
+WATER BILL
+</div>
+
+<hr>
+
+<div class="row">
+<span>Apartment</span>
+<span id="outApartment"></span>
+</div>
+
+<div class="row">
+<span>Flat</span>
+<span id="outFlat"></span>
+</div>
+
+<div class="row">
+<span>Date</span>
+<span id="outDate"></span>
+</div>
+
+<hr>
+
+<div class="row">
+<span>Current Reading</span>
+<span id="outCurrent"></span>
+</div>
+
+<div class="row">
+<span>Previous Reading</span>
+<span id="outPrevious"></span>
+</div>
+
+<div class="row">
+<span>Water Consumed</span>
+<span id="outLiters"></span>
+</div>
+
+<hr>
+
+<div class="row total">
+<span>Total Bill</span>
+<span id="outBill"></span>
+</div>
+
+</div>
+
+<button
+id="shareBtn"
+class="share-btn"
+onclick="shareBill()">
+📤 Share Bill Image
+</button>
+
 </div>
 
 <script>
-    let billHistory = [];
 
-    function calculateBill() {
-        const flatNo = document.getElementById("flatNo").value.trim() || "N/A";
-        const prevReading = parseFloat(document.getElementById("prevReading").value) || 0;
-        const currReading = parseFloat(document.getElementById("currReading").value) || 0;
-        const ratePerLiterPaise = parseFloat(document.getElementById("ratePerUnit").value) || 0;
-        const fixedChargesRupees = parseFloat(document.getElementById("fixedCharges").value) || 0;
+function calculateBill(){
 
-        if (currReading < prevReading) {
-            alert("Error: Current reading cannot be less than the previous reading.");
+    let apartment =
+    document.getElementById("apartment").value;
+
+    let flat =
+    document.getElementById("flat").value;
+
+    let current =
+    parseFloat(document.getElementById("currentReading").value);
+
+    let previous =
+    parseFloat(document.getElementById("previousReading").value);
+
+    let paisaRate =
+    parseFloat(document.getElementById("paisaRate").value);
+
+    if(isNaN(current) || isNaN(previous)){
+
+        alert("Please enter Current and Previous readings.");
+
+        return;
+    }
+
+    if(current < previous){
+
+        alert("Current reading cannot be less than previous reading.");
+
+        return;
+    }
+
+    let units =
+    current - previous;
+
+    let liters =
+    units * 10;
+
+    let amount =
+    (liters * paisaRate) / 100;
+
+    document.getElementById("outApartment").innerText =
+    apartment;
+
+    document.getElementById("outFlat").innerText =
+    flat;
+
+    document.getElementById("outDate").innerText =
+    new Date().toLocaleDateString();
+
+    document.getElementById("outCurrent").innerText =
+    current;
+
+    document.getElementById("outPrevious").innerText =
+    previous;
+
+    document.getElementById("outLiters").innerText =
+    liters + " Liters";
+
+    document.getElementById("outBill").innerText =
+    "₹" + amount.toFixed(2);
+
+    document.getElementById("billCard").style.display =
+    "block";
+
+    document.getElementById("shareBtn").style.display =
+    "block";
+}
+
+async function shareBill(){
+
+    try{
+
+        const billCard =
+        document.getElementById("billCard");
+
+        const canvas =
+        await html2canvas(billCard,{scale:2});
+
+        const blob =
+        await new Promise(resolve =>
+        canvas.toBlob(resolve,"image/png"));
+
+        if(!blob){
+            alert("Unable to create image");
             return;
         }
 
-        const litersConsumed = currReading - prevReading;
-        
-        // Calculate consumption cost in Rupees (Paise * Liters / 100)
-        const consumptionCostRupees = (litersConsumed * ratePerLiterPaise) / 100;
-        const totalAmountRupees = consumptionCostRupees + fixedChargesRupees;
-        
-        const today = new Date();
-        const dateString = today.toLocaleDateString() + " " + today.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const file =
+        new File(
+        [blob],
+        "WaterBill.png",
+        {type:"image/png"}
+        );
 
-        // Populate Dashboard UI Elements
-        document.getElementById("billDate").innerText = "Generated: " + dateString;
-        document.getElementById("resFlat").innerText = flatNo;
-        document.getElementById("resPrev").innerText = prevReading + " L";
-        document.getElementById("resCurr").innerText = currReading + " L";
-        document.getElementById("resUnits").innerText = litersConsumed + " Liters";
-        document.getElementById("resRate").innerText = ratePerLiterPaise + " Paise";
-        document.getElementById("resFixed").innerText = "₹" + fixedChargesRupees.toFixed(2);
+        if(
+            navigator.share &&
+            navigator.canShare &&
+            navigator.canShare({files:[file]})
+        ){
+
+            await navigator.share({
+                title:"Water Bill",
+                files:[file]
+            });
+
+        }else{
+
+            const url =
+            URL.createObjectURL(blob);
+
+            const a =
+            document.createElement("a");
+
+            a.href = url;
+            a.download = "WaterBill.png";
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            URL.revokeObjectURL(url);
+
+            alert("Image downloaded successfully.");
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        alert("Share Error: " + error.message);
+    }
+}
+
+</script>
+
+</body>
+</html>
