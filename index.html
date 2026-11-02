@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Water Bill Calculator</title>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -11,85 +10,118 @@
 <style>
 
 *{
-    box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
 }
 
 body{
-    font-family:Arial,sans-serif;
-    background:#f5f7fa;
-    padding:20px;
-    margin:0;
+background:#f5f7fa;
+padding:20px;
 }
 
 .container{
-    max-width:600px;
-    margin:auto;
-    background:#fff;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+max-width:800px;
+margin:auto;
+background:#fff;
+padding:20px;
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,.1);
 }
 
-h2{
-    text-align:center;
-    color:#0077b6;
+h2,h3{
+text-align:center;
+margin-bottom:15px;
+color:#0077b6;
 }
 
 input{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border:1px solid #ccc;
-    border-radius:8px;
+width:100%;
+padding:12px;
+margin:8px 0;
+border:1px solid #ccc;
+border-radius:8px;
 }
 
 button{
-    width:100%;
-    padding:12px;
-    margin-top:15px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:16px;
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
 }
 
 .calculate-btn{
-    background:#0077b6;
-    color:white;
+background:#0077b6;
+color:#fff;
 }
 
 .share-btn{
-    background:#28a745;
-    color:white;
-    display:none;
+background:#28a745;
+color:#fff;
+display:none;
+}
+
+.whatsapp-btn{
+background:#25D366;
+color:#fff;
+display:none;
+}
+
+.clear-btn{
+background:#dc3545;
+color:#fff;
 }
 
 #billCard{
-    display:none;
-    margin-top:20px;
-    padding:20px;
-    border:2px solid #0077b6;
-    border-radius:12px;
-    background:#ffffff;
+display:none;
+margin-top:20px;
+padding:20px;
+border:2px solid #0077b6;
+border-radius:12px;
+background:#fff;
 }
 
 .bill-title{
-    text-align:center;
-    font-size:24px;
-    font-weight:bold;
-    color:#0077b6;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+color:#0077b6;
+margin-bottom:10px;
 }
 
 .row{
-    display:flex;
-    justify-content:space-between;
-    margin:10px 0;
+display:flex;
+justify-content:space-between;
+padding:8px 0;
+border-bottom:1px solid #eee;
 }
 
 .total{
-    color:red;
-    font-size:22px;
-    font-weight:bold;
+font-size:24px;
+font-weight:bold;
+color:red;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+th{
+background:#0077b6;
+color:white;
+padding:10px;
+}
+
+td{
+border:1px solid #ddd;
+padding:8px;
+text-align:center;
 }
 
 </style>
@@ -105,26 +137,31 @@ button{
 
 <input type="text" id="flat" placeholder="Flat Number">
 
+<input type="text" id="customerName" placeholder="Customer Name">
+
+<input type="text" id="mobileNumber" placeholder="Mobile Number">
+
+<input type="month" id="billingMonth">
+
+<input type="date" id="dueDate">
+
 <input type="number" id="currentReading" placeholder="Current Reading">
 
 <input type="number" id="previousReading" placeholder="Previous Reading">
 
-<input type="number"
-       id="paisaRate"
-       value="11"
-       placeholder="Paisa Per Liter">
+<input type="number" id="paisaRate" value="11" placeholder="Paisa Per Liter">
 
-<button class="calculate-btn" onclick="calculateBill()">
+<button
+class="calculate-btn"
+onclick="calculateBill()">
 Calculate Bill
 </button>
 
 <div id="billCard">
 
 <div class="bill-title">
-WATER BILL
+WATER CONSUMPTION BILL
 </div>
-
-<hr>
 
 <div class="row">
 <span>Apartment</span>
@@ -132,16 +169,29 @@ WATER BILL
 </div>
 
 <div class="row">
-<span>Flat</span>
+<span>Flat No</span>
 <span id="outFlat"></span>
 </div>
 
 <div class="row">
-<span>Date</span>
-<span id="outDate"></span>
+<span>Customer</span>
+<span id="outCustomer"></span>
 </div>
 
-<hr>
+<div class="row">
+<span>Mobile</span>
+<span id="outMobile"></span>
+</div>
+
+<div class="row">
+<span>Billing Month</span>
+<span id="outMonth"></span>
+</div>
+
+<div class="row">
+<span>Due Date</span>
+<span id="outDueDate"></span>
+</div>
 
 <div class="row">
 <span>Current Reading</span>
@@ -158,8 +208,6 @@ WATER BILL
 <span id="outLiters"></span>
 </div>
 
-<hr>
-
 <div class="row total">
 <span>Total Bill</span>
 <span id="outBill"></span>
@@ -174,142 +222,351 @@ onclick="shareBill()">
 📤 Share Bill Image
 </button>
 
+<button
+id="whatsappBtn"
+class="whatsapp-btn"
+onclick="shareWhatsApp()">
+📱 Share via WhatsApp
+</button>
+
+<hr style="margin:25px 0;">
+
+<h3>📋 Bill History</h3>
+
+<table id="historyTable">
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>Flat</th>
+<th>Customer</th>
+<th>Liters</th>
+<th>Bill</th>
+</tr>
+
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+<button
+class="clear-btn"
+onclick="clearHistory()">
+🗑 Clear History
+</button>
+
 </div>
 
 <script>
 
 function calculateBill(){
 
-    let apartment =
-    document.getElementById("apartment").value;
+let apartment =
+document.getElementById("apartment").value;
 
-    let flat =
-    document.getElementById("flat").value;
+let flat =
+document.getElementById("flat").value;
 
-    let current =
-    parseFloat(document.getElementById("currentReading").value);
+let customer =
+document.getElementById("customerName").value;
 
-    let previous =
-    parseFloat(document.getElementById("previousReading").value);
+let mobile =
+document.getElementById("mobileNumber").value;
 
-    let paisaRate =
-    parseFloat(document.getElementById("paisaRate").value);
+let billingMonth =
+document.getElementById("billingMonth").value;
 
-    if(isNaN(current) || isNaN(previous)){
+let dueDate =
+document.getElementById("dueDate").value;
 
-        alert("Please enter Current and Previous readings.");
+let current =
+parseFloat(
+document.getElementById("currentReading").value
+);
 
-        return;
-    }
+let previous =
+parseFloat(
+document.getElementById("previousReading").value
+);
 
-    if(current < previous){
+let paisaRate =
+parseFloat(
+document.getElementById("paisaRate").value
+);
 
-        alert("Current reading cannot be less than previous reading.");
+if(isNaN(current) || isNaN(previous)){
 
-        return;
-    }
+alert("Please enter readings");
 
-    let units =
-    current - previous;
+return;
 
-    let liters =
-    units * 10;
+}
 
-    let amount =
-    (liters * paisaRate) / 100;
+if(current < previous){
 
-    document.getElementById("outApartment").innerText =
-    apartment;
+alert(
+"Current reading cannot be less than previous reading"
+);
 
-    document.getElementById("outFlat").innerText =
-    flat;
+return;
 
-    document.getElementById("outDate").innerText =
-    new Date().toLocaleDateString();
+}
 
-    document.getElementById("outCurrent").innerText =
-    current;
+let units =
+current - previous;
 
-    document.getElementById("outPrevious").innerText =
-    previous;
+let liters =
+units * 10;
 
-    document.getElementById("outLiters").innerText =
-    liters + " Liters";
+let amount =
+(liters * paisaRate)/100;
 
-    document.getElementById("outBill").innerText =
-    "₹" + amount.toFixed(2);
+document.getElementById("outApartment").innerText =
+apartment;
 
-    document.getElementById("billCard").style.display =
-    "block";
+document.getElementById("outFlat").innerText =
+flat;
 
-    document.getElementById("shareBtn").style.display =
-    "block";
+document.getElementById("outCustomer").innerText =
+customer;
+
+document.getElementById("outMobile").innerText =
+mobile;
+
+document.getElementById("outMonth").innerText =
+billingMonth;
+
+document.getElementById("outDueDate").innerText =
+dueDate;
+
+document.getElementById("outCurrent").innerText =
+current;
+
+document.getElementById("outPrevious").innerText =
+previous;
+
+document.getElementById("outLiters").innerText =
+liters + " Liters";
+
+document.getElementById("outBill").innerText =
+"₹" + amount.toFixed(2);
+
+document.getElementById("billCard").style.display =
+"block";
+
+document.getElementById("shareBtn").style.display =
+"block";
+
+document.getElementById("whatsappBtn").style.display =
+"block";
+
+saveBillHistory(
+flat,
+customer,
+liters,
+amount
+);
+
 }
 
 async function shareBill(){
 
-    try{
+try{
 
-        const billCard =
-        document.getElementById("billCard");
+const billCard =
+document.getElementById("billCard");
 
-        const canvas =
-        await html2canvas(billCard,{scale:2});
+const canvas =
+await html2canvas(billCard,{scale:2});
 
-        const blob =
-        await new Promise(resolve =>
-        canvas.toBlob(resolve,"image/png"));
+const blob =
+await new Promise(resolve =>
+canvas.toBlob(resolve,"image/png")
+);
 
-        if(!blob){
-            alert("Unable to create image");
-            return;
-        }
+const file =
+new File(
+[blob],
+"WaterBill.png",
+{type:"image/png"}
+);
 
-        const file =
-        new File(
-        [blob],
-        "WaterBill.png",
-        {type:"image/png"}
-        );
+if(
+navigator.share &&
+navigator.canShare &&
+navigator.canShare({files:[file]})
+){
 
-        if(
-            navigator.share &&
-            navigator.canShare &&
-            navigator.canShare({files:[file]})
-        ){
+await navigator.share({
+title:"Water Bill",
+files:[file]
+});
 
-            await navigator.share({
-                title:"Water Bill",
-                files:[file]
-            });
+}else{
 
-        }else{
+const url =
+URL.createObjectURL(blob);
 
-            const url =
-            URL.createObjectURL(blob);
+const a =
+document.createElement("a");
 
-            const a =
-            document.createElement("a");
+a.href = url;
 
-            a.href = url;
-            a.download = "WaterBill.png";
+a.download =
+"WaterBill.png";
 
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+a.click();
 
-            URL.revokeObjectURL(url);
+URL.revokeObjectURL(url);
 
-            alert("Image downloaded successfully.");
-        }
-
-    }catch(error){
-
-        console.error(error);
-
-        alert("Share Error: " + error.message);
-    }
 }
+
+}catch(error){
+
+alert(error.message);
+
+}
+
+}
+
+function shareWhatsApp(){
+
+const apartment =
+document.getElementById("apartment").value;
+
+const flat =
+document.getElementById("flat").value;
+
+const customer =
+document.getElementById("customerName").value;
+
+const liters =
+document.getElementById("outLiters").innerText;
+
+const bill =
+document.getElementById("outBill").innerText;
+
+const dueDate =
+document.getElementById("dueDate").value;
+
+const message =
+
+`💧 WATER BILL
+
+Apartment: ${apartment}
+
+Flat: ${flat}
+
+Customer: ${customer}
+
+Water Consumed: ${liters}
+
+Amount Payable: ${bill}
+
+Due Date: ${dueDate}
+
+Thank You`;
+
+window.open(
+'https://wa.me/?text=' +
+encodeURIComponent(message),
+'_blank'
+);
+
+}
+
+function saveBillHistory(
+flat,
+customer,
+liters,
+amount
+){
+
+let bills =
+JSON.parse(
+localStorage.getItem("waterBills")
+) || [];
+
+bills.push({
+
+date:new Date().toLocaleDateString(),
+flat:flat,
+customer:customer,
+liters:liters,
+amount:amount.toFixed(2)
+
+});
+
+localStorage.setItem(
+"waterBills",
+JSON.stringify(bills)
+);
+
+loadHistory();
+
+}
+
+function loadHistory(){
+
+let bills =
+JSON.parse(
+localStorage.getItem("waterBills")
+) || [];
+
+const tbody =
+document.querySelector(
+"#historyTable tbody"
+);
+
+tbody.innerHTML="";
+
+[...bills]
+.reverse()
+.forEach(bill=>{
+
+tbody.innerHTML +=
+
+`<tr>
+
+<td>${bill.date}</td>
+
+<td>${bill.flat}</td>
+
+<td>${bill.customer}</td>
+
+<td>${bill.liters}</td>
+
+<td>₹${bill.amount}</td>
+
+</tr>`;
+
+});
+
+}
+
+function clearHistory(){
+
+if(confirm(
+"Delete all bill history?"
+)){
+
+localStorage.removeItem(
+"waterBills"
+);
+
+loadHistory();
+
+}
+
+}
+
+window.onload = function(){
+
+loadHistory();
+
+};
 
 </script>
 
