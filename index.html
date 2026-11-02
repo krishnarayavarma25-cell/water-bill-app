@@ -210,16 +210,16 @@
         <label for="flatNo">Flat / Apartment Number:</label>
         <input type="text" id="flatNo" placeholder="e.g., Block A - 302">
         
-        <label for="prevReading">Previous Reading (KL/Units):</label>
+        <label for="prevReading">Previous Reading (Liters):</label>
         <input type="number" id="prevReading" placeholder="Enter previous value">
         
-        <label for="currReading">Current Reading (KL/Units):</label>
+        <label for="currReading">Current Reading (Liters):</label>
         <input type="number" id="currReading" placeholder="Enter current value">
         
-        <label for="ratePerUnit">Rate per Unit ($/₹):</label>
-        <input type="number" id="ratePerUnit" value="15" placeholder="Enter rate per unit">
+        <label for="ratePerUnit">Rate per Liter (in Paise):</label>
+        <input type="number" id="ratePerUnit" value="11" placeholder="e.g., 11">
         
-        <label for="fixedCharges">Fixed Maintenance Charges (Optional):</label>
+        <label for="fixedCharges">Fixed Maintenance Charges (₹ - Optional):</label>
         <input type="number" id="fixedCharges" value="0" placeholder="Enter fixed charges">
     </div>
 
@@ -229,7 +229,7 @@
     <button class="preview-btn" id="previewBtn" onclick="printPreview()">👁️ Print Preview</button>
     <button class="history-btn" onclick="toggleHistory()">📋 Bill History</button>
 
-    <!-- Structural Bill Invoice -->
+    <!-- Formatted Bill Invoice Panel -->
     <div id="billCard">
         <div class="apartment-title">WATER UTILITY BILL</div>
         <div class="bill-subtitle" id="billDate">Date: --/--/----</div>
@@ -240,27 +240,27 @@
         </div>
         <div class="row">
             <span>Previous Reading:</span>
-            <span id="resPrev">0</span>
+            <span id="resPrev">0 L</span>
         </div>
         <div class="row">
             <span>Current Reading:</span>
-            <span id="resCurr">0</span>
+            <span id="resCurr">0 L</span>
         </div>
         <div class="row">
             <span>Total Consumption:</span>
-            <span id="resUnits">0 Units</span>
+            <span id="resUnits">0 Liters</span>
         </div>
         <div class="row">
-            <span>Rate per Unit:</span>
-            <span id="resRate">0</span>
+            <span>Rate per Liter:</span>
+            <span id="resRate">0 Paise</span>
         </div>
         <div class="row">
             <span>Fixed / Extra Charges:</span>
-            <span id="resFixed">0</span>
+            <span id="resFixed">₹0.00</span>
         </div>
         <div class="row total">
             <span>Total Due:</span>
-            <span id="resTotal">0.00</span>
+            <span id="resTotal">₹0.00</span>
         </div>
     </div>
 
@@ -271,12 +271,12 @@
             <thead>
                 <tr>
                     <th>Flat</th>
-                    <th>Units</th>
-                    <th>Total</th>
+                    <th>Liters</th>
+                    <th>Total (₹)</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Items dynamically append here -->
+                <!-- Logs dynamically added here -->
             </tbody>
         </table>
     </div>
@@ -289,31 +289,28 @@
         const flatNo = document.getElementById("flatNo").value.trim() || "N/A";
         const prevReading = parseFloat(document.getElementById("prevReading").value) || 0;
         const currReading = parseFloat(document.getElementById("currReading").value) || 0;
-        const ratePerUnit = parseFloat(document.getElementById("ratePerUnit").value) || 0;
-        const fixedCharges = parseFloat(document.getElementById("fixedCharges").value) || 0;
+        const ratePerLiterPaise = parseFloat(document.getElementById("ratePerUnit").value) || 0;
+        const fixedChargesRupees = parseFloat(document.getElementById("fixedCharges").value) || 0;
 
         if (currReading < prevReading) {
             alert("Error: Current reading cannot be less than the previous reading.");
             return;
         }
 
-        const unitsConsumed = currReading - prevReading;
-        const totalAmount = (unitsConsumed * ratePerUnit) + fixedCharges;
+        const litersConsumed = currReading - prevReading;
+        
+        // Calculate consumption cost in Rupees (Paise * Liters / 100)
+        const consumptionCostRupees = (litersConsumed * ratePerLiterPaise) / 100;
+        const totalAmountRupees = consumptionCostRupees + fixedChargesRupees;
         
         const today = new Date();
         const dateString = today.toLocaleDateString() + " " + today.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
+        // Populate Dashboard UI Elements
         document.getElementById("billDate").innerText = "Generated: " + dateString;
         document.getElementById("resFlat").innerText = flatNo;
-        document.getElementById("resPrev").innerText = prevReading;
-        document.getElementById("resCurr").innerText = currReading;
-        document.getElementById("resUnits").innerText = unitsConsumed + " Units";
-        document.getElementById("resRate").innerText = ratePerUnit;
-        document.getElementById("resFixed").innerText = fixedCharges;
-        document.getElementById("resTotal").innerText = totalAmount.toFixed(2);
-
-        document.getElementById("billCard").style.display = "block";
-        document.getElementById("shareBtn").style.display = "block";
-        document.getElementById("previewBtn").style.display = "block";
-
-        // Record history log
+        document.getElementById("resPrev").innerText = prevReading + " L";
+        document.getElementById("resCurr").innerText = currReading + " L";
+        document.getElementById("resUnits").innerText = litersConsumed + " Liters";
+        document.getElementById("resRate").innerText = ratePerLiterPaise + " Paise";
+        document.getElementById("resFixed").innerText = "₹" + fixedChargesRupees.toFixed(2);
