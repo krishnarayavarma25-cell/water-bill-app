@@ -146,8 +146,6 @@ text-align:center;
 
 <input type="month" id="billingMonth">
 
-<input type="date" id="dueDate">
-
 <input type="number" id="currentReading" placeholder="Current Reading">
 
 <input type="number" id="previousReading" placeholder="Previous Reading">
@@ -189,8 +187,8 @@ WATER CONSUMPTION BILL
 </div>
 
 <div class="row">
-<span>Due Date</span>
-<span id="outDueDate"></span>
+<span>Date</span>
+<span id="outDate"></span>
 </div>
 
 <div class="row">
@@ -260,8 +258,6 @@ onclick="clearHistory()">
 <script>
   function calculateBill(){
 
-console.log("📊 Calculation Started");
-
 let apartment =
 document.getElementById("apartment").value;
 
@@ -274,8 +270,8 @@ document.getElementById("customerName").value;
 let billingMonth =
 document.getElementById("billingMonth").value;
 
-let dueDate =
-document.getElementById("dueDate").value;
+let billDate =
+new Date().toLocaleDateString();
 
 let current =
 parseFloat(
@@ -293,73 +289,34 @@ document.getElementById("paisaRate").value
 );
 
 if(isNaN(current) || isNaN(previous)){
-
 alert("Please enter readings");
 return;
-
 }
 
 if(current < previous){
-
-alert(
-"Current reading cannot be less than previous reading"
-);
-
+alert("Current reading cannot be less than previous reading");
 return;
-
 }
 
-let units =
-current - previous;
-
-let liters =
-units * 10;
+let units = current - previous;
+let liters = units * 10;
 
 let amount =
-(liters * paisaRate)/100;
+(liters * paisaRate) / 100;
 
-console.log("Apartment:", apartment);
-console.log("Flat:", flat);
-console.log("Tenant:", customer);
-console.log("Units:", units);
-console.log("Liters:", liters);
-console.log("Amount:", amount);
+document.getElementById("outApartment").innerText = apartment;
+document.getElementById("outFlat").innerText = flat;
+document.getElementById("outCustomer").innerText = customer;
+document.getElementById("outMonth").innerText = billingMonth;
+document.getElementById("outDate").innerText = billDate;
+document.getElementById("outCurrent").innerText = current;
+document.getElementById("outPrevious").innerText = previous;
+document.getElementById("outLiters").innerText = liters + " Liters";
+document.getElementById("outBill").innerText = "₹" + amount.toFixed(2);
 
-document.getElementById("outApartment").innerText =
-apartment;
-
-document.getElementById("outFlat").innerText =
-flat;
-
-document.getElementById("outCustomer").innerText =
-customer;
-
-document.getElementById("outMonth").innerText =
-billingMonth;
-
-document.getElementById("outDueDate").innerText =
-dueDate;
-
-document.getElementById("outCurrent").innerText =
-current;
-
-document.getElementById("outPrevious").innerText =
-previous;
-
-document.getElementById("outLiters").innerText =
-liters + " Liters";
-
-document.getElementById("outBill").innerText =
-"₹" + amount.toFixed(2);
-
-document.getElementById("billCard").style.display =
-"block";
-
-document.getElementById("shareBtn").style.display =
-"block";
-
-document.getElementById("whatsappBtn").style.display =
-"block";
+document.getElementById("billCard").style.display = "block";
+document.getElementById("shareBtn").style.display = "block";
+document.getElementById("whatsappBtn").style.display = "block";
 
 saveBillHistory(
 flat,
@@ -372,31 +329,21 @@ amount
 
 function refreshForm(){
 
-document.getElementById("apartment").value = "";
-document.getElementById("flat").value = "";
-document.getElementById("customerName").value = "";
-document.getElementById("billingMonth").value = "";
-document.getElementById("dueDate").value = "";
-document.getElementById("currentReading").value = "";
-document.getElementById("previousReading").value = "";
-document.getElementById("paisaRate").value = "11";
+document.getElementById("apartment").value="";
+document.getElementById("flat").value="";
+document.getElementById("customerName").value="";
+document.getElementById("billingMonth").value="";
+document.getElementById("currentReading").value="";
+document.getElementById("previousReading").value="";
+document.getElementById("paisaRate").value="11";
 
-document.getElementById("billCard").style.display =
-"none";
-
-document.getElementById("shareBtn").style.display =
-"none";
-
-document.getElementById("whatsappBtn").style.display =
-"none";
-
-console.log("🔄 New Bill Form Reset");
+document.getElementById("billCard").style.display="none";
+document.getElementById("shareBtn").style.display="none";
+document.getElementById("whatsappBtn").style.display="none";
 
 }
 
 async function shareBill(){
-
-console.log("📤 Generating Bill Image");
 
 try{
 
@@ -411,10 +358,7 @@ billCard,
 
 const blob =
 await new Promise(resolve =>
-canvas.toBlob(
-resolve,
-"image/png"
-)
+canvas.toBlob(resolve,"image/png")
 );
 
 const file =
@@ -451,11 +395,7 @@ URL.revokeObjectURL(url);
 
 }
 
-console.log("✅ Bill Shared");
-
 }catch(error){
-
-console.error(error);
 
 alert(error.message);
 
@@ -464,8 +404,6 @@ alert(error.message);
 }
 
 function shareWhatsApp(){
-
-console.log("📱 WhatsApp Share Started");
 
 const apartment =
 document.getElementById("apartment").value;
@@ -482,8 +420,8 @@ document.getElementById("outLiters").innerText;
 const bill =
 document.getElementById("outBill").innerText;
 
-const dueDate =
-document.getElementById("dueDate").value;
+const billDate =
+new Date().toLocaleDateString();
 
 const message =
 
@@ -495,11 +433,11 @@ Flat: ${flat}
 
 Tenant: ${customer}
 
+Date: ${billDate}
+
 Water Consumed: ${liters}
 
 Amount Payable: ${bill}
-
-Due Date: ${dueDate}
 
 Thank You`;
 
@@ -518,32 +456,17 @@ liters,
 amount
 ){
 
-console.log("💾 Saving Bill");
-
 let bills =
 JSON.parse(
-localStorage.getItem(
-"waterBills"
-)
+localStorage.getItem("waterBills")
 ) || [];
 
 bills.push({
-
-date:
-new Date().toLocaleDateString(),
-
-flat:
-flat,
-
-customer:
-customer,
-
-liters:
-liters,
-
-amount:
-amount.toFixed(2)
-
+date:new Date().toLocaleDateString(),
+flat:flat,
+customer:customer,
+liters:liters,
+amount:amount.toFixed(2)
 });
 
 localStorage.setItem(
@@ -557,13 +480,9 @@ loadHistory();
 
 function loadHistory(){
 
-console.log("📋 Loading History");
-
 let bills =
 JSON.parse(
-localStorage.getItem(
-"waterBills"
-)
+localStorage.getItem("waterBills")
 ) || [];
 
 const tbody =
@@ -571,26 +490,19 @@ document.querySelector(
 "#historyTable tbody"
 );
 
-tbody.innerHTML = "";
+tbody.innerHTML="";
 
 [...bills]
 .reverse()
 .forEach(bill=>{
 
-tbody.innerHTML +=
-
-`<tr>
-
+tbody.innerHTML += `
+<tr>
 <td>${bill.date}</td>
-
 <td>${bill.flat}</td>
-
 <td>${bill.customer}</td>
-
 <td>${bill.liters}</td>
-
 <td>₹${bill.amount}</td>
-
 </tr>`;
 
 });
@@ -599,15 +511,9 @@ tbody.innerHTML +=
 
 function clearHistory(){
 
-if(
-confirm(
-"Delete all bill history?"
-)
-){
+if(confirm("Delete all bill history?")){
 
-localStorage.removeItem(
-"waterBills"
-);
+localStorage.removeItem("waterBills");
 
 loadHistory();
 
@@ -618,10 +524,6 @@ loadHistory();
 window.onload = function(){
 
 loadHistory();
-
-console.log(
-"✅ Water Bill App Loaded"
-);
 
 };
 
