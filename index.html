@@ -182,11 +182,11 @@
         </div>
         <div class="form-group">
             <label>Previous Reading (Liters)</label>
-            <input type="number" id="prevReading" placeholder="e.g. 1198">
+            <input type="number" id="prevReading" placeholder="e.g. 1089">
         </div>
         <div class="form-group">
             <label>Current Reading (Liters)</label>
-            <input type="number" id="currReading" placeholder="e.g. 1229">
+            <input type="number" id="currReading" placeholder="e.g. 1129">
         </div>
         <div class="form-group full-width">
             <label>Rate per Liter (₹ or Paisa)</label>
@@ -221,7 +221,6 @@
 </div>
 
 <script>
-    // Initialize standard values
     document.getElementById('billMonth').value = new Date().toISOString().substring(0, 7);
     generateBillNo();
 
@@ -229,7 +228,6 @@
         document.getElementById('billNo').value = 'BILL-' + Math.floor(100000 + Math.random() * 900000);
     }
 
-    // Pull last reading when writing the flat identifier
     document.getElementById('flatNo').addEventListener('input', function() {
         let flat = this.value.trim();
         if(!flat) return;
@@ -258,7 +256,7 @@
             return;
         }
         if(currReading < prevReading) {
-            alert('Current reading cannot be lower than the previous reading value.');
+            alert('Current reading cannot be lower than previous reading.');
             return;
         }
 
@@ -268,7 +266,6 @@
         let dateObj = new Date(month + "-01");
         let formattedMonth = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-        // Populate dynamic properties directly
         document.getElementById('rMonth').innerText = formattedMonth;
         document.getElementById('rBillNo').innerText = billNo;
         document.getElementById('rFlat').innerText = flat;
@@ -330,8 +327,7 @@
         filtered.reverse().forEach((item) => {
             let card = document.createElement('div');
             card.className = 'history-card';
-            // We find the true index in the full array for proper deletion
-            let fullIndex = history.indexOf(item);
+            let actualIndex = history.indexOf(item);
             card.innerHTML = `
                 <div class="title">
                     <span>Flat ${item.flat} (${item.formattedMonth})</span>
@@ -343,27 +339,27 @@
                     Readings: ${item.prevReading} to ${item.currReading} | Consumption: ${item.consumption.toFixed(2)} Liters<br>
                     Rate: ${item.ratePerLiter.toFixed(2)} per liter
                 </div>
-                <button class="delete-btn" onclick="deleteRecord(${fullIndex})">Delete</button>
+                <button class="delete-btn" onclick="deleteRecord(${actualIndex})">Delete</button>
             `;
             container.appendChild(card);
         });
     }
 
-    function deleteRecord(index) {
+    window.deleteRecord = function(index) {
         let history = JSON.parse(localStorage.getItem('waterBills')) || [];
         history.splice(index, 1);
         localStorage.setItem('waterBills', JSON.stringify(history));
         renderHistory();
-    }
+    };
 
-    function clearAllHistory() {
+    window.clearAllHistory = function() {
         if(confirm('Are you sure you want to clear all billing data history?')) {
             localStorage.removeItem('waterBills');
             renderHistory();
         }
-    }
+    };
 
-    function shareReceiptImage() {
+    window.shareReceiptImage = function() {
         let element = document.getElementById('billReceipt');
         html2canvas(element).then(canvas => {
             canvas.toBlob(blob => {
@@ -372,7 +368,7 @@
                     navigator.share({
                         files: [file],
                         title: 'Water Bill Receipt',
-                        text: 'Generated water utility ledger update.'
+                        text: 'Generated water utility receipt.'
                     }).catch(err => console.log(err));
                 } else {
                     let link = document.createElement('a');
@@ -382,7 +378,7 @@
                 }
             });
         });
-    }
+    };
 
     renderHistory();
 </script>
