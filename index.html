@@ -1,433 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Water Bill Calculator</title>
-
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-<style>
-*{
-    box-sizing:border-box;
-}
-
-body{
-    font-family:Arial,sans-serif;
-    background:#f5f7fa;
-    padding:20px;
-    margin:0;
-}
-
-.container{
-    max-width:600px;
-    margin:auto;
-    background:#fff;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.1);
-}
-
-h2{
-    text-align:center;
-    color:#0077b6;
-}
-
-input{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border:1px solid #ccc;
-    border-radius:8px;
-}
-
-button{
-    width:100%;
-    padding:12px;
-    margin-top:15px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:16px;
-}
-
-.calculate-btn{
-    background:#0077b6;
-    color:#fff;
-}
-
-.share-btn{
-    background:#28a745;
-    color:#fff;
-    display:none;
-}
-
-.history-btn{
-    background:#6c757d;
-    color:#fff;
-}
-
-.clear-btn{
-    background:#dc3545;
-    color:#fff;
-}
-
-#billCard{
-    display:none;
-    margin-top:20px;
-    padding:20px;
-    border:2px solid #0077b6;
-    border-radius:12px;
-    background:#fff;
-}
-
-.bill-title{
-    text-align:center;
-    font-size:24px;
-    font-weight:bold;
-    color:#0077b6;
-}
-
-.row{
-    display:flex;
-    justify-content:space-between;
-    margin:10px 0;
-}
-
-.total{
-    color:red;
-    font-size:22px;
-    font-weight:bold;
-}
-
-.history-card{
-    border:1px solid #ccc;
-    padding:10px;
-    margin-top:10px;
-    border-radius:8px;
-    background:#f9f9f9;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Bill Calculator & Manager</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 16px; max-width: 600px; margin: 0 auto; }
+        h1, h2 { color: #0f172a; margin-bottom: 16px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid var(--border); }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 16px; outline: none; }
+        input:focus, select:focus { border-color: var(--primary); }
+        .row { display: flex; gap: 12px; }
+        .row .form-group { flex: 1; }
+        button { width: 100%; padding: 12px; border: none; background: var(--primary); color: white; font-size: 16px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.2s; margin-bottom: 8px; }
+        button:hover { background: var(--primary-dark); }
+        button.secondary { background: #64748b; }
+        button.secondary:hover { background: #475569; }
+        button.danger { background: #ef4444; }
+        button.danger:hover { background: #dc2626; }
+        #billReceipt { background: #fff; padding: 20px; border: 2px dashed #cbd5e1; border-radius: 8px; margin-top: 16px; display: none; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 15px; }
+        .receipt-total { border-top: 2px solid #0f172a; padding-top: 8px; margin-top: 8px; font-weight: bold; font-size: 18px; }
+        .search-box { margin-bottom: 12px; }
+        .history-item { background: #fff; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; position: relative; }
+        .history-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px; color: var(--primary); }
+        .history-details { font-size: 14px; color: #475569; }
+        .delete-btn { position: absolute; right: 12px; top: 12px; color: #ef4444; cursor: pointer; font-weight: bold; border: none; background: none; width: auto; padding: 0; }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
-
-<h2>💧 Water Bill Calculator</h2>
-
-<input type="text" id="apartment" placeholder="Apartment Name">
-
-<input type="text" id="flat" placeholder="Flat Number">
-
-<input type="month" id="billMonth">
-
-<input type="number" id="currentReading" placeholder="Current Reading">
-
-<input type="number" id="previousReading" placeholder="Previous Reading">
-
-<input type="number" id="paisaRate" value="11" placeholder="Paisa Per Liter">
-
-<button class="calculate-btn" onclick="calculateBill()">
-Calculate Bill
-</button>
-
-<div id="billCard">
-
-<div class="bill-title">
-WATER BILL
-</div>
-
-<hr>
-
-<div class="row">
-<span>Apartment</span>
-<span id="outApartment"></span>
-</div>
-
-<div class="row">
-<span>Flat</span>
-<span id="outFlat"></span>
-</div>
-
-<div class="row">
-<span>Month</span>
-<span id="outMonth"></span>
-</div>
-
-<div class="row">
-<span>Date</span>
-<span id="outDate"></span>
-</div>
-
-<hr>
-
-<div class="row">
-<span>Current Reading</span>
-<span id="outCurrent"></span>
-</div>
-
-<div class="row">
-<span>Previous Reading</span>
-<span id="outPrevious"></span>
-</div>
-
-<div class="row">
-<span>Water Consumed</span>
-<span id="outLiters"></span>
-</div>
-
-<hr>
-
-<div class="row total">
-<span>Total Bill</span>
-<span id="outBill"></span>
-</div>
-
-</div>
-
-<button
-id="shareBtn"
-class="share-btn"
-onclick="shareBill()">
-📤 Share Bill Image
-</button>
-
-<button
-class="history-btn"
-onclick="showHistory()">
-📋 View History
-</button>
-
-<input
-type="text"
-id="searchFlat"
-placeholder="Search Flat Number">
-
-<button
-class="history-btn"
-onclick="searchHistory()">
-🔍 Search History
-</button>
-
-<button
-class="clear-btn"
-onclick="clearHistory()">
-🗑 Clear History
-</button>
-
-<div id="historyArea"></div>
-
-</div>
-
-<script>
-
-function calculateBill(){
-
-    let apartment =
-    document.getElementById("apartment").value;
-
-    let flat =
-    document.getElementById("flat").value;
-
-    let month =
-    document.getElementById("billMonth").value;
-
-    let current =
-    parseFloat(document.getElementById("currentReading").value);
-
-    let previous =
-    parseFloat(document.getElementById("previousReading").value);
-
-    let paisaRate =
-    parseFloat(document.getElementById("paisaRate").value);
-
-    if(isNaN(current) || isNaN(previous)){
-        alert("Please enter Current and Previous readings.");
-        return;
-    }
-
-    if(current < previous){
-        alert("Current reading cannot be less than previous reading.");
-        return;
-    }
-
-    let units = current - previous;
-    let liters = units * 10;
-    let amount = (liters * paisaRate) / 100;
-
-    let billRecord = {
-        apartment,
-        flat,
-        month,
-        date: new Date().toLocaleDateString(),
-        current,
-        previous,
-        liters,
-        amount: amount.toFixed(2)
-    };
-
-    let history =
-    JSON.parse(localStorage.getItem("waterBills")) || [];
-
-    history.push(billRecord);
-
-    localStorage.setItem(
-        "waterBills",
-        JSON.stringify(history)
-    );
-
-    document.getElementById("outApartment").innerText = apartment;
-    document.getElementById("outFlat").innerText = flat;
-    document.getElementById("outMonth").innerText = month;
-    document.getElementById("outDate").innerText = new Date().toLocaleDateString();
-    document.getElementById("outCurrent").innerText = current;
-    document.getElementById("outPrevious").innerText = previous;
-    document.getElementById("outLiters").innerText = liters + " Liters";
-    document.getElementById("outBill").innerText = "₹" + amount.toFixed(2);
-
-    document.getElementById("billCard").style.display = "block";
-    document.getElementById("shareBtn").style.display = "block";
-}
-
-async function shareBill(){
-
-    try{
-
-        const billCard =
-        document.getElementById("billCard");
-
-        const canvas =
-        await html2canvas(billCard,{scale:2});
-
-        const blob =
-        await new Promise(resolve =>
-        canvas.toBlob(resolve,"image/png"));
-
-        if(!blob){
-            alert("Unable to create image");
-            return;
-        }
-
-        const file =
-        new File(
-            [blob],
-            "WaterBill.png",
-            {type:"image/png"}
-        );
-
-        if(
-            navigator.share &&
-            navigator.canShare &&
-            navigator.canShare({files:[file]})
-        ){
-
-            await navigator.share({
-                title:"Water Bill",
-                files:[file]
-            });
-
-        }else{
-
-            const url =
-            URL.createObjectURL(blob);
-
-            const a =
-            document.createElement("a");
-
-            a.href = url;
-            a.download = "WaterBill.png";
-
-            a.click();
-
-            URL.revokeObjectURL(url);
-        }
-
-    }catch(error){
-        alert("Share Error: " + error.message);
-    }
-}
-
-function showHistory(){
-
-    let history =
-    JSON.parse(localStorage.getItem("waterBills")) || [];
-
-    let html = "<h3>Bill History</h3>";
-
-    if(history.length === 0){
-        html += "<p>No history found.</p>";
-    }
-
-    history.slice().reverse().forEach(bill => {
-
-        html += `
-        <div class="history-card">
-        <b>Month:</b> ${bill.month}<br>
-        <b>Date:</b> ${bill.date}<br>
-        <b>Apartment:</b> ${bill.apartment}<br>
-        <b>Flat:</b> ${bill.flat}<br>
-        <b>Consumption:</b> ${bill.liters} Liters<br>
-        <b>Total Bill:</b> ₹${bill.amount}
-        </div>
-        `;
-    });
-
-    document.getElementById("historyArea").innerHTML = html;
-}
-
-function searchHistory(){
-
-    let flat =
-    document.getElementById("searchFlat").value.trim();
-
-    let history =
-    JSON.parse(localStorage.getItem("waterBills")) || [];
-
-    let filtered =
-    history.filter(item => item.flat == flat);
-
-    let html =
-    `<h3>History For Flat ${flat}</h3>`;
-
-    if(filtered.length === 0){
-
-        html += "<p>No records found.</p>";
-
-    }else{
-
-        filtered.reverse().forEach(bill => {
-
-            html += `
-            <div class="history-card">
-                <b>Month:</b> ${bill.month}<br>
-                <b>Date:</b> ${bill.date}<br>
-                <b>Current:</b> ${bill.current}<br>
-                <b>Previous:</b> ${bill.previous}<br>
-                <b>Consumption:</b> ${bill.liters} Liters<br>
-                <b>Total Bill:</b> ₹${bill.amount}
+    <div class="card">
+        <h1>Water Bill Manager</h1>
+        <div class="row">
+            <div class="form-group">
+                <label for="billMonth">Bill Month</label>
+                <input type="month" id="billMonth">
             </div>
-            `;
-        });
-    }
+            <div class="form-group">
+                <label for="billNumber">Bill No.</label>
+                <input type="text" id="billNumber" placeholder="Auto-generated" readonly>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="flatNo">Flat / House No.</label>
+                <input type="text" id="flatNo" placeholder="e.g. 101" required oninput="autoFillPreviousReading()">
+            </div>
+            <div class="form-group">
+                <label for="tenantName">Tenant Name</label>
+                <input type="text" id="tenantName" placeholder="Tenant Name">
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="prevReading">Previous Reading</label>
+                <input type="number" id="prevReading" placeholder="0" step="any">
+            </div>
+            <div class="form-group">
+                <label for="currReading">Current Reading</label>
+                <input type="number" id="currReading" placeholder="0" step="any">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="rate">Rate per Unit (₹)</label>
+            <input type="number" id="rate" value="50" step="any">
+        </div>
+        <button onclick="calculateBill()">Calculate & Save</button>
+        
+        <div id="billReceipt">
+            <div id="receiptContent">
+                <h3 style="text-align:center; margin-bottom:12px;">WATER BILL RECEIPT</h3>
+                <div class="receipt-row"><span>Bill No:</span><span id="rBillNo"></span></div>
+                <div class="receipt-row"><span>Month:</span><span id="rMonth"></span></div>
+                <div class="receipt-row"><span>Flat No:</span><span id="rFlat"></span></div>
+                <div class="receipt-row"><span>Tenant Name:</span><span id="rTenant"></span></div>
+                <hr style="margin: 8px 0; border: none; border-top: 1px dashed #cbd5e1;">
+                <div class="receipt-row"><span>Current Reading:</span><span id="rCurr"></span></div>
+                <div class="receipt-row"><span>Previous Reading:</span><span id="rPrev"></span></div>
+                <div class="receipt-row"><span>Total Consumption:</span><span id="rUnits"></span> units</div>
+                <div class="receipt-row"><span>Rate per Unit:</span>₹<span id="rRate"></span></div>
+                <div class="receipt-total"><span>Total Amount:</span>₹<span id="rAmount"></span></div>
+            </div>
+            <button class="secondary" style="margin-top:12px;" onclick="shareBillImage()">Share Bill Image</button>
+        </div>
+    </div>
 
-    document.getElementById("historyArea").innerHTML = html;
-}
+    <div class="card">
+        <h2>Billing History</h2>
+        <div class="form-group search-box">
+            <input type="text" id="searchHistory" placeholder="Search by Flat or Tenant..." oninput="renderHistory()">
+        </div>
+        <div id="historyList"></div>
+        <button class="danger" style="margin-top:12px;" onclick="clearAllHistory()">Clear All History</button>
+    </div>
 
-function clearHistory(){
+    <script>
+        // Set current month on load
+        const today = new Date();
+        const yyyymm = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+        document.getElementById('billMonth').value = yyyymm;
 
-    if(confirm("Delete all history?")){
+        function getHistory() {
+            return JSON.parse(localStorage.getItem("waterBills")) || [];
+        }
 
-        localStorage.removeItem("waterBills");
+        function generateBillNumber() {
+            return 'BILL-' + Date.now().toString().slice(-6);
+        }
 
-        document.getElementById("historyArea").innerHTML = "";
+        // Auto-fill previous reading from the latest record of this flat
+        function autoFillPreviousReading() {
+            const flat = document.getElementById('flatNo').value.trim();
+            if (!flat) return;
+            const history = getHistory();
+            // Sort by month descending to get the newest record first
+            const flatRecords = history.filter(item => item.flat === flat);
+            if (flatRecords.length > 0) {
+                flatRecords.sort((a, b) => b.month.localeCompare(a.month));
+                document.getElementById('prevReading').value = flatRecords[0].currReading;
+            } else {
+                document.getElementById('prevReading').value = '';
+            }
+        }
 
-        alert("History Deleted");
-    }
-}
+        function calculateBill() {
+            const month = document.getElementById('billMonth').value;
+            const flat = document.getElementById('flatNo').value.trim();
+            const tenant = document.getElementById('tenantName').value.trim() || "N/A";
+            const prev = parseFloat(document.getElementById('prevReading').value) || 0;
+            const curr = parseFloat(document.getElementById('currReading').value) || 0;
+            const rate = parseFloat(document.getElementById('rate').value) || 0;
 
-</script>
+            if (!flat) { alert("Please enter Flat/House number"); return; }
+            if (curr < prev) { alert("Current reading cannot be less than previous reading"); return; }
 
+            const units = curr - prev;
+            const amount = units * rate;
+            const billNo = generateBillNumber();
+
+            const billRecord = {
+                billNo, month, flat, tenant, prevReading: prev, currReading: curr, rate, units, amount
+            };
+
+            let history = getHistory();
+            
+            // Duplicate prevention: If same flat and same month already exists, overwrite it
+            let existingIndex = history.findIndex(item => item.flat === flat && item.month === month);
+            if (existingIndex >= 0) {
+                // Keep the original bill number if updating
+                billRecord.billNo = history[existingIndex].billNo;
+                history[existingIndex] = billRecord;
+            } else {
+                history.push(billRecord);
+            }
+
+            localStorage.setItem("waterBills", JSON.stringify(history));
+
+            // Display Receipt
+            document.getElementById('rBillNo').innerText = billRecord.billNo;
+            document.getElementById('rMonth').innerText = month;
+            document.getElementById('rFlat').innerText = flat;
+            document.getElementById('rTenant').innerText = tenant;
+            document.getElementById('rCurr').innerText = curr;
+            document.getElementById('rPrev').innerText = prev;
+            document.getElementById('rUnits').innerText = units.toFixed(2);
+            document.getElementById('rRate').innerText = rate.toFixed(2);
+            document.getElementById('rAmount').innerText = amount.toFixed(2);
+            document.getElementById('billReceipt').style.display = 'block';
+
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = getHistory();
+            const searchQuery = document.getElementById('searchHistory').value.toLowerCase();
+            const listDiv = document.getElementById('historyList');
+            listDiv.innerHTML = '';
+
+            // Sort history to show newest entries first
+            const sortedHistory = [...history].reverse();
+
+            sortedHistory.forEach((item) => {
+                if (item.flat.toLowerCase().includes(searchQuery) || item.tenant.toLowerCase().includes(searchQuery)) {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'history-item';
+                    itemDiv.innerHTML = `
+                        <div class="history-header">
+                            <span>Flat ${item.flat} (${item.month})</span>
+                            <span>₹${item.amount.toFixed(2)}</span>
+                        </div>
+                        <div class="history-details">
+                            Tenant: ${item.tenant}<br>
+                            Bill No: ${item.billNo} | Consumption: ${item.units.toFixed(2)} units<br>
+                            Reading: ${item.prevReading} → ${item.currReading} @ ₹${item.rate}/unit
+                        </div>
+                        <button class="delete-btn" onclick="deleteRecord('${item.billNo}')">✕</button>
+                    `;
+                    listDiv.appendChild(itemDiv);
+                }
+            });
+        }
+
+        function deleteRecord(billNo) {
+            if (confirm("Are you sure you want to delete this bill record?")) {
+                let history = getHistory();
+                history = history.filter(item => item.billNo !== billNo);
+                localStorage.setItem("waterBills", JSON.stringify(history));
+                renderHistory();
+            }
+        }
+
+        function clearAllHistory() {
+            if (confirm("Are you sure you want to permanently delete ALL billing history?")) {
+                localStorage.removeItem("waterBills");
+                renderHistory();
+            }
+        }
+
+        function shareBillImage() {
+            const element = document.getElementById('receiptContent');
+            html2canvas(element).then(canvas => {
+                canvas.toBlob(blob => {
+                    const file = new File([blob], `WaterBill_${document.getElementById('rFlat').innerText}.png`, { type: 'image/png' });
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: 'Water Bill Receipt',
+                            text: `Water Bill for Flat ${document.getElementById('rFlat').innerText}`
+                        }).catch(err => console.error(err));
+                    } else {
+                        // Fallback download if Web Share API is not fully supported on files
+                        const link = document.createElement('a');
+                        link.download = `WaterBill_${document.getElementById('rFlat').innerText}.png`;
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    }
+                });
+            });
+        }
+
+        // Render history on page load
+        window.onload = renderHistory;
+    </script>
 </body>
 </html>
