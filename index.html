@@ -286,11 +286,11 @@
         
         if(records.length > 0) {
             records.sort((a,b) => b.month.localeCompare(a.month));
-            prevField.value = records[0].currReading;
+            prevField.value = records.currReading;
             prevField.classList.add('autofilled-highlight');
             
-            if(records[0].tenantName && !tenantField.value) {
-                tenantField.value = records[0].tenantName;
+            if(records.tenantName && !tenantField.value) {
+                tenantField.value = records.tenantName;
                 tenantField.classList.add('autofilled-highlight');
             }
         }
