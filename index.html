@@ -9,7 +9,6 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
-
 *{
     box-sizing:border-box;
 }
@@ -55,23 +54,23 @@ button{
 
 .calculate-btn{
     background:#0077b6;
-    color:white;
+    color:#fff;
 }
 
 .share-btn{
     background:#28a745;
-    color:white;
+    color:#fff;
     display:none;
 }
 
 .history-btn{
     background:#6c757d;
-    color:white;
+    color:#fff;
 }
 
 .clear-btn{
     background:#dc3545;
-    color:white;
+    color:#fff;
 }
 
 #billCard{
@@ -80,7 +79,7 @@ button{
     padding:20px;
     border:2px solid #0077b6;
     border-radius:12px;
-    background:#ffffff;
+    background:#fff;
 }
 
 .bill-title{
@@ -102,10 +101,13 @@ button{
     font-weight:bold;
 }
 
-#historyArea{
-    margin-top:20px;
+.history-card{
+    border:1px solid #ccc;
+    padding:10px;
+    margin-top:10px;
+    border-radius:8px;
+    background:#f9f9f9;
 }
-
 </style>
 </head>
 
@@ -119,15 +121,13 @@ button{
 
 <input type="text" id="flat" placeholder="Flat Number">
 
+<input type="month" id="billMonth">
+
 <input type="number" id="currentReading" placeholder="Current Reading">
 
 <input type="number" id="previousReading" placeholder="Previous Reading">
 
-<input
-type="number"
-id="paisaRate"
-value="11"
-placeholder="Paisa Per Liter">
+<input type="number" id="paisaRate" value="11" placeholder="Paisa Per Liter">
 
 <button class="calculate-btn" onclick="calculateBill()">
 Calculate Bill
@@ -149,6 +149,11 @@ WATER BILL
 <div class="row">
 <span>Flat</span>
 <span id="outFlat"></span>
+</div>
+
+<div class="row">
+<span>Month</span>
+<span id="outMonth"></span>
 </div>
 
 <div class="row">
@@ -226,6 +231,9 @@ function calculateBill(){
     let flat =
     document.getElementById("flat").value;
 
+    let month =
+    document.getElementById("billMonth").value;
+
     let current =
     parseFloat(document.getElementById("currentReading").value);
 
@@ -236,30 +244,27 @@ function calculateBill(){
     parseFloat(document.getElementById("paisaRate").value);
 
     if(isNaN(current) || isNaN(previous)){
-
         alert("Please enter Current and Previous readings.");
         return;
     }
 
     if(current < previous){
-
         alert("Current reading cannot be less than previous reading.");
         return;
     }
 
     let units = current - previous;
-
     let liters = units * 10;
-
     let amount = (liters * paisaRate) / 100;
 
     let billRecord = {
-        apartment: apartment,
-        flat: flat,
+        apartment,
+        flat,
+        month,
         date: new Date().toLocaleDateString(),
-        current: current,
-        previous: previous,
-        liters: liters,
+        current,
+        previous,
+        liters,
         amount: amount.toFixed(2)
     };
 
@@ -273,32 +278,17 @@ function calculateBill(){
         JSON.stringify(history)
     );
 
-    document.getElementById("outApartment").innerText =
-    apartment;
+    document.getElementById("outApartment").innerText = apartment;
+    document.getElementById("outFlat").innerText = flat;
+    document.getElementById("outMonth").innerText = month;
+    document.getElementById("outDate").innerText = new Date().toLocaleDateString();
+    document.getElementById("outCurrent").innerText = current;
+    document.getElementById("outPrevious").innerText = previous;
+    document.getElementById("outLiters").innerText = liters + " Liters";
+    document.getElementById("outBill").innerText = "₹" + amount.toFixed(2);
 
-    document.getElementById("outFlat").innerText =
-    flat;
-
-    document.getElementById("outDate").innerText =
-    new Date().toLocaleDateString();
-
-    document.getElementById("outCurrent").innerText =
-    current;
-
-    document.getElementById("outPrevious").innerText =
-    previous;
-
-    document.getElementById("outLiters").innerText =
-    liters + " Liters";
-
-    document.getElementById("outBill").innerText =
-    "₹" + amount.toFixed(2);
-
-    document.getElementById("billCard").style.display =
-    "block";
-
-    document.getElementById("shareBtn").style.display =
-    "block";
+    document.getElementById("billCard").style.display = "block";
+    document.getElementById("shareBtn").style.display = "block";
 }
 
 async function shareBill(){
@@ -322,9 +312,9 @@ async function shareBill(){
 
         const file =
         new File(
-        [blob],
-        "WaterBill.png",
-        {type:"image/png"}
+            [blob],
+            "WaterBill.png",
+            {type:"image/png"}
         );
 
         if(
@@ -349,15 +339,12 @@ async function shareBill(){
             a.href = url;
             a.download = "WaterBill.png";
 
-            document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
 
             URL.revokeObjectURL(url);
         }
 
     }catch(error){
-
         alert("Share Error: " + error.message);
     }
 }
@@ -369,27 +356,25 @@ function showHistory(){
 
     let html = "<h3>Bill History</h3>";
 
+    if(history.length === 0){
+        html += "<p>No history found.</p>";
+    }
+
     history.slice().reverse().forEach(bill => {
 
         html += `
-        <div style="
-            border:1px solid #ccc;
-            padding:10px;
-            margin:10px 0;
-            border-radius:8px;
-            background:#f9f9f9;
-        ">
-            <b>Date:</b> ${bill.date}<br>
-            <b>Apartment:</b> ${bill.apartment}<br>
-            <b>Flat:</b> ${bill.flat}<br>
-            <b>Consumption:</b> ${bill.liters} Liters<br>
-            <b>Bill:</b> ₹${bill.amount}
+        <div class="history-card">
+        <b>Month:</b> ${bill.month}<br>
+        <b>Date:</b> ${bill.date}<br>
+        <b>Apartment:</b> ${bill.apartment}<br>
+        <b>Flat:</b> ${bill.flat}<br>
+        <b>Consumption:</b> ${bill.liters} Liters<br>
+        <b>Total Bill:</b> ₹${bill.amount}
         </div>
         `;
     });
 
-    document.getElementById("historyArea").innerHTML =
-    html;
+    document.getElementById("historyArea").innerHTML = html;
 }
 
 function searchHistory(){
@@ -401,10 +386,10 @@ function searchHistory(){
     JSON.parse(localStorage.getItem("waterBills")) || [];
 
     let filtered =
-    history.filter(item => item.flat === flat);
+    history.filter(item => item.flat == flat);
 
     let html =
-    "<h3>Search Result</h3>";
+    `<h3>History For Flat ${flat}</h3>`;
 
     if(filtered.length === 0){
 
@@ -415,25 +400,19 @@ function searchHistory(){
         filtered.reverse().forEach(bill => {
 
             html += `
-            <div style="
-                border:1px solid #ccc;
-                padding:10px;
-                margin:10px 0;
-                border-radius:8px;
-                background:#f9f9f9;
-            ">
+            <div class="history-card">
+                <b>Month:</b> ${bill.month}<br>
                 <b>Date:</b> ${bill.date}<br>
                 <b>Current:</b> ${bill.current}<br>
                 <b>Previous:</b> ${bill.previous}<br>
                 <b>Consumption:</b> ${bill.liters} Liters<br>
-                <b>Bill:</b> ₹${bill.amount}
+                <b>Total Bill:</b> ₹${bill.amount}
             </div>
             `;
         });
     }
 
-    document.getElementById("historyArea").innerHTML =
-    html;
+    document.getElementById("historyArea").innerHTML = html;
 }
 
 function clearHistory(){
