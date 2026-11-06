@@ -172,6 +172,24 @@ id="shareBtn"
 class="share-btn"
 onclick="shareBill()">
 📤 Share Bill Image
+    <button onclick="showHistory()">
+📋 View History
+</button>
+
+<input
+type="text"
+id="searchFlat"
+placeholder="Search Flat Number">
+
+<button onclick="searchHistory()">
+🔍 Search History
+</button>
+
+<button onclick="clearHistory()">
+🗑 Clear History
+</button>
+
+<div id="historyArea"></div>
 </button>
 
 </div>
@@ -217,6 +235,25 @@ function calculateBill(){
 
     let amount =
     (liters * paisaRate) / 100;
+    let billRecord = {
+    apartment: apartment,
+    flat: flat,
+    date: new Date().toLocaleDateString(),
+    current: current,
+    previous: previous,
+    liters: liters,
+    amount: amount.toFixed(2)
+};
+
+let history =
+JSON.parse(localStorage.getItem("waterBills")) || [];
+
+history.push(billRecord);
+
+localStorage.setItem(
+    "waterBills",
+    JSON.stringify(history)
+);
 
     document.getElementById("outApartment").innerText =
     apartment;
@@ -310,6 +347,94 @@ async function shareBill(){
         alert("Share Error: " + error.message);
     }
 }
+    }
+
+function showHistory(){
+
+    let history =
+    JSON.parse(localStorage.getItem("waterBills")) || [];
+
+    let html = "<h3>Bill History</h3>";
+
+    history.slice().reverse().forEach(bill => {
+
+        html += `
+        <div style="
+            border:1px solid #ccc;
+            padding:10px;
+            margin:10px 0;
+            border-radius:8px;
+            background:#f9f9f9;
+        ">
+            <b>Date:</b> ${bill.date}<br>
+            <b>Apartment:</b> ${bill.apartment}<br>
+            <b>Flat:</b> ${bill.flat}<br>
+            <b>Consumption:</b> ${bill.liters} Liters<br>
+            <b>Bill:</b> ₹${bill.amount}
+        </div>
+        `;
+    });
+
+    document.getElementById("historyArea").innerHTML = html;
+}
+
+function searchHistory(){
+
+    let flat =
+    document.getElementById("searchFlat").value.trim();
+
+    let history =
+    JSON.parse(localStorage.getItem("waterBills")) || [];
+
+    let filtered =
+    history.filter(item => item.flat === flat);
+
+    let html =
+    `<h3>History For Flat ${flat}</h3>`;
+
+    if(filtered.length === 0){
+
+        html += "<p>No records found.</p>";
+
+    }else{
+
+        filtered.reverse().forEach(bill => {
+
+            html += `
+            <div style="
+                border:1px solid #ccc;
+                padding:10px;
+                margin:10px 0;
+                border-radius:8px;
+                background:#f9f9f9;
+            ">
+                <b>Date:</b> ${bill.date}<br>
+                <b>Current:</b> ${bill.current}<br>
+                <b>Previous:</b> ${bill.previous}<br>
+                <b>Consumption:</b> ${bill.liters} Liters<br>
+                <b>Bill:</b> ₹${bill.amount}
+            </div>
+            `;
+        });
+    }
+
+    document.getElementById("historyArea").innerHTML =
+    html;
+}
+
+function clearHistory(){
+
+    if(confirm("Delete all history?")){
+
+        localStorage.removeItem("waterBills");
+
+        document.getElementById("historyArea").innerHTML = "";
+
+        alert("History Deleted");
+    }
+}
+
+</script>
 
 </script>
 
