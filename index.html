@@ -51,10 +51,15 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
+            transition: background-color 0.5s ease;
         }
         input:focus {
             border-color: #007bff;
             outline: none;
+        }
+        .autofilled-highlight {
+            background-color: #fff3cd !important;
+            border-color: #ffeeba !important;
         }
         button {
             width: 100%;
@@ -73,6 +78,13 @@
         .btn-secondary {
             background-color: #4a5568;
             color: white;
+        }
+        .btn-reset {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+        .btn-reset:hover {
+            background-color: #cbd5e1;
         }
         .btn-danger {
             background-color: #dc3545;
@@ -108,7 +120,7 @@
             padding-top: 10px;
             font-weight: bold;
             font-size: 16px;
-            color: #000;
+            color: #d32f2f;
         }
         .history-section {
             margin-top: 30px;
@@ -181,20 +193,21 @@
             <input type="text" id="tenantName" placeholder="e.g. pradeep">
         </div>
         <div class="form-group">
-            <label>Previous Reading (Liters)</label>
-            <input type="number" id="prevReading" placeholder="e.g. 1089">
+            <label>Previous Reading</label>
+            <input type="number" id="prevReading" placeholder="e.g. 1189">
         </div>
         <div class="form-group">
-            <label>Current Reading (Liters)</label>
-            <input type="number" id="currReading" placeholder="e.g. 1129">
+            <label>Current Reading</label>
+            <input type="number" id="currReading" placeholder="e.g. 1289">
         </div>
         <div class="form-group full-width">
-            <label>Rate per Liter (₹ or Paisa)</label>
-            <input type="number" step="0.01" id="ratePerLiter" value="11.00">
+            <label>Rate per Liter (Paisa)</label>
+            <input type="number" id="ratePerLiter" value="11" placeholder="Paisa Per Liter">
         </div>
     </div>
 
     <button class="btn-primary" onclick="calculateAndSave()">Calculate & Save</button>
+    <button class="btn-reset" onclick="resetForm()">Reset Input Form</button>
 
     <div id="receiptContainer" style="display: none;">
         <div class="receipt-box" id="billReceipt">
@@ -205,9 +218,9 @@
             <div class="receipt-row"><span>Tenant Name:</span><span id="rName"></span></div>
             <div class="receipt-row"><span>Current Reading:</span><span id="rCurr"></span></div>
             <div class="receipt-row"><span>Previous Reading:</span><span id="rPrev"></span></div>
-            <div class="receipt-row"><span>Total Consumption:</span><span id="rCons"></span></div>
+            <div class="receipt-row"><span>Water Consumed:</span><span id="rCons"></span></div>
             <div class="receipt-row"><span>Rate per Liter:</span><span id="rRate"></span></div>
-            <div class="receipt-row total"><span>Total Amount:</span><span id="rTotal"></span></div>
+            <div class="receipt-row total"><span>Total Bill:</span><span id="rTotal"></span></div>
         </div>
         <button class="btn-secondary" onclick="shareReceiptImage()">Share Bill Image</button>
     </div>
@@ -230,38 +243,69 @@
 
     document.getElementById('flatNo').addEventListener('input', function() {
         let flat = this.value.trim();
+        let prevField = document.getElementById('prevReading');
+        let tenantField = document.getElementById('tenantName');
+        
+        prevField.classList.remove('autofilled-highlight');
+        tenantField.classList.remove('autofilled-highlight');
+
         if(!flat) return;
+
         let history = JSON.parse(localStorage.getItem('waterBills')) || [];
         let records = history.filter(item => item.flat.toLowerCase() === flat.toLowerCase());
+        
         if(records.length > 0) {
             records.sort((a,b) => b.month.localeCompare(a.month));
-            document.getElementById('prevReading').value = records[0].currReading;
-            if(records[0].tenantName && !document.getElementById('tenantName').value) {
-                document.getElementById('tenantName').value = records[0].tenantName;
+            
+            prevField.value = records.currReading;
+            prevField.classList.add('autofilled-highlight');
+            
+            if(records.tenantName && !tenantField.value) {
+                tenantField.value = records.tenantName;
+                tenantField.classList.add('autofilled-highlight');
             }
         }
     });
+
+    function resetForm() {
+        document.getElementById('flatNo').value = '';
+        document.getElementById('tenantName').value = '';
+        document.getElementById('prevReading').value = '';
+        document.getElementById('currReading').value = '';
+        document.getElementById('ratePerLiter').value = '11';
+        
+        document.getElementById('prevReading').classList.remove('autofilled-highlight');
+        document.getElementById('tenantName').classList.remove('autofilled-highlight');
+        
+        generateBillNo();
+        document.getElementById('receiptContainer').style.display = 'none';
+    }
 
     function calculateAndSave() {
         let month = document.getElementById('billMonth').value;
         let billNo = document.getElementById('billNo').value;
         let flat = document.getElementById('flatNo').value.trim();
         let tenantName = document.getElementById('tenantName').value.trim();
-        let prevReading = parseFloat(document.getElementById('prevReading').value) || 0;
-        let currReading = parseFloat(document.getElementById('currReading').value) || 0;
-        let ratePerLiter = parseFloat(document.getElementById('ratePerLiter').value) || 0;
+        let prevReading = parseFloat(document.getElementById('prevReading').value);
+        let currReading = parseFloat(document.getElementById('currReading').value);
+        let ratePerLiter = parseFloat(document.getElementById('ratePerLiter').value);
 
         if(!flat) {
             alert('Please enter a valid Flat / House Number');
             return;
         }
+        if(isNaN(currReading) || isNaN(prevReading)){
+            alert("Please enter Current and Previous readings.");
+            return;
+        }
         if(currReading < prevReading) {
-            alert('Current reading cannot be lower than previous reading.');
+            alert('Current reading cannot be less than previous reading.');
             return;
         }
 
-        let consumption = currReading - prevReading;
-        let totalAmount = consumption * ratePerLiter;
+        let units = currReading - prevReading;
+        let liters = units * 10;
+        let totalAmount = (liters * ratePerLiter) / 100;
 
         let dateObj = new Date(month + "-01");
         let formattedMonth = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -270,10 +314,10 @@
         document.getElementById('rBillNo').innerText = billNo;
         document.getElementById('rFlat').innerText = flat;
         document.getElementById('rName').innerText = tenantName || '-';
-        document.getElementById('rCurr').innerText = currReading.toFixed(2);
-        document.getElementById('rPrev').innerText = prevReading.toFixed(2);
-        document.getElementById('rCons').innerText = consumption.toFixed(2) + " Liters";
-        document.getElementById('rRate').innerText = ratePerLiter.toFixed(2);
+        document.getElementById('rCurr').innerText = currReading;
+        document.getElementById('rPrev').innerText = prevReading;
+        document.getElementById('rCons').innerText = liters + " Liters";
+        document.getElementById('rRate').innerText = ratePerLiter + " Paisa";
         document.getElementById('rTotal').innerText = "₹" + totalAmount.toFixed(2);
 
         document.getElementById('receiptContainer').style.display = 'block';
@@ -286,7 +330,7 @@
             tenantName: tenantName,
             prevReading: prevReading,
             currReading: currReading,
-            consumption: consumption,
+            consumption: liters,
             ratePerLiter: ratePerLiter,
             totalAmount: totalAmount
         };
@@ -336,8 +380,8 @@
                 <div class="details">
                     Tenant: ${item.tenantName || '-'}<br>
                     Bill No: ${item.billNo}<br>
-                    Readings: ${item.prevReading} to ${item.currReading} | Consumption: ${item.consumption.toFixed(2)} Liters<br>
-                    Rate: ${item.ratePerLiter.toFixed(2)} per liter
+                    Readings: ${item.prevReading} to ${item.currReading} | Water Consumed: ${item.consumption} Liters<br>
+                    Rate: ${item.ratePerLiter} Paisa
                 </div>
                 <button class="delete-btn" onclick="deleteRecord(${actualIndex})">Delete</button>
             `;
