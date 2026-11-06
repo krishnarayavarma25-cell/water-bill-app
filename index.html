@@ -64,6 +64,16 @@ button{
     display:none;
 }
 
+.history-btn{
+    background:#6c757d;
+    color:white;
+}
+
+.clear-btn{
+    background:#dc3545;
+    color:white;
+}
+
 #billCard{
     display:none;
     margin-top:20px;
@@ -92,6 +102,10 @@ button{
     font-weight:bold;
 }
 
+#historyArea{
+    margin-top:20px;
+}
+
 </style>
 </head>
 
@@ -109,10 +123,11 @@ button{
 
 <input type="number" id="previousReading" placeholder="Previous Reading">
 
-<input type="number"
-       id="paisaRate"
-       value="11"
-       placeholder="Paisa Per Liter">
+<input
+type="number"
+id="paisaRate"
+value="11"
+placeholder="Paisa Per Liter">
 
 <button class="calculate-btn" onclick="calculateBill()">
 Calculate Bill
@@ -172,7 +187,11 @@ id="shareBtn"
 class="share-btn"
 onclick="shareBill()">
 📤 Share Bill Image
-    <button onclick="showHistory()">
+</button>
+
+<button
+class="history-btn"
+onclick="showHistory()">
 📋 View History
 </button>
 
@@ -181,16 +200,19 @@ type="text"
 id="searchFlat"
 placeholder="Search Flat Number">
 
-<button onclick="searchHistory()">
+<button
+class="history-btn"
+onclick="searchHistory()">
 🔍 Search History
 </button>
 
-<button onclick="clearHistory()">
+<button
+class="clear-btn"
+onclick="clearHistory()">
 🗑 Clear History
 </button>
 
 <div id="historyArea"></div>
-</button>
 
 </div>
 
@@ -216,44 +238,40 @@ function calculateBill(){
     if(isNaN(current) || isNaN(previous)){
 
         alert("Please enter Current and Previous readings.");
-
         return;
     }
 
     if(current < previous){
 
         alert("Current reading cannot be less than previous reading.");
-
         return;
     }
 
-    let units =
-    current - previous;
+    let units = current - previous;
 
-    let liters =
-    units * 10;
+    let liters = units * 10;
 
-    let amount =
-    (liters * paisaRate) / 100;
+    let amount = (liters * paisaRate) / 100;
+
     let billRecord = {
-    apartment: apartment,
-    flat: flat,
-    date: new Date().toLocaleDateString(),
-    current: current,
-    previous: previous,
-    liters: liters,
-    amount: amount.toFixed(2)
-};
+        apartment: apartment,
+        flat: flat,
+        date: new Date().toLocaleDateString(),
+        current: current,
+        previous: previous,
+        liters: liters,
+        amount: amount.toFixed(2)
+    };
 
-let history =
-JSON.parse(localStorage.getItem("waterBills")) || [];
+    let history =
+    JSON.parse(localStorage.getItem("waterBills")) || [];
 
-history.push(billRecord);
+    history.push(billRecord);
 
-localStorage.setItem(
-    "waterBills",
-    JSON.stringify(history)
-);
+    localStorage.setItem(
+        "waterBills",
+        JSON.stringify(history)
+    );
 
     document.getElementById("outApartment").innerText =
     apartment;
@@ -336,18 +354,13 @@ async function shareBill(){
             document.body.removeChild(a);
 
             URL.revokeObjectURL(url);
-
-            alert("Image downloaded successfully.");
         }
 
     }catch(error){
 
-        console.error(error);
-
         alert("Share Error: " + error.message);
     }
 }
-    }
 
 function showHistory(){
 
@@ -375,7 +388,8 @@ function showHistory(){
         `;
     });
 
-    document.getElementById("historyArea").innerHTML = html;
+    document.getElementById("historyArea").innerHTML =
+    html;
 }
 
 function searchHistory(){
@@ -390,7 +404,7 @@ function searchHistory(){
     history.filter(item => item.flat === flat);
 
     let html =
-    `<h3>History For Flat ${flat}</h3>`;
+    "<h3>Search Result</h3>";
 
     if(filtered.length === 0){
 
@@ -433,8 +447,6 @@ function clearHistory(){
         alert("History Deleted");
     }
 }
-
-</script>
 
 </script>
 
