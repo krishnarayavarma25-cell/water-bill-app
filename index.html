@@ -250,7 +250,6 @@
             <div class="receipt-row"><span>Current Reading:</span><span id="rCurr"></span></div>
             <div class="receipt-row"><span>Previous Reading:</span><span id="rPrev"></span></div>
             <div class="receipt-row"><span>Water Consumed:</span><span id="rCons"></span></div>
-            <div class="receipt-row"><span>Rate per Liter:</span><span id="rRate"></span></div>
             <div class="receipt-row total"><span>Total Bill:</span><span id="rTotal"></span></div>
         </div>
         <button class="btn-secondary" onclick="shareReceiptImage()">Share Bill Image</button>
@@ -287,11 +286,11 @@
         
         if(records.length > 0) {
             records.sort((a,b) => b.month.localeCompare(a.month));
-            prevField.value = records.currReading;
+            prevField.value = records[0].currReading;
             prevField.classList.add('autofilled-highlight');
             
-            if(records.tenantName && !tenantField.value) {
-                tenantField.value = records.tenantName;
+            if(records[0].tenantName && !tenantField.value) {
+                tenantField.value = records[0].tenantName;
                 tenantField.classList.add('autofilled-highlight');
             }
         }
@@ -347,7 +346,6 @@
         document.getElementById('rCurr').innerText = currReading;
         document.getElementById('rPrev').innerText = prevReading;
         document.getElementById('rCons').innerText = liters + " Liters";
-        document.getElementById('rRate').innerText = ratePerLiter + " Paisa";
         document.getElementById('rTotal').innerText = "₹" + totalAmount.toFixed(2);
 
         document.getElementById('receiptContainer').style.display = 'block';
